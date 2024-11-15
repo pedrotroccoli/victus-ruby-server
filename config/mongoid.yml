@@ -287,6 +287,12 @@ development:
     # validate the paramters and raise an error if they are invalid.
     # validate_update_replace: false
 
+production:
+  clients:
+    default:
+      uri: <%= ENV['MONGO_URI'] %>
+  options:
+    raise_not_found_error: false
 
 test:
   clients:

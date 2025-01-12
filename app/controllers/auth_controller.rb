@@ -10,9 +10,11 @@ class AuthController < ApplicationController
   end
 
   def sign_in
-    account = Account.find_by(email: params[:email])
+    accounts_params = params.require(:account).permit(:email, :password)
 
-    if account && account.authenticate(params[:password])
+    account = Account.find_by(email: accounts_params[:email])
+
+    if account && account.authenticate(accounts_params[:password])
       token = JWT.encode({ account_id: account.id }, ENV['JWT_SECRET'], 'HS256')
 
       render json: { message: 'Signed in successfully', token: token }, status: :ok

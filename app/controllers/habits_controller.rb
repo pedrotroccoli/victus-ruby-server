@@ -4,7 +4,7 @@ class HabitsController < ApplicationController
   def show
     @habit = Habit.where(account_id: @current_account[:id]).find(params[:id])
 
-    render json: @habit
+    render json: @habit, 
   end
 
   def index
@@ -27,6 +27,6 @@ class HabitsController < ApplicationController
   private
 
   def habit_params
-    params.require(:habit).permit(:name, :description, :start_date, :end_date)
+    params.require(:habit).permit(:name, :description, :start_date, :end_date, :recurrency_type, :recurrency_details)
   end
 end

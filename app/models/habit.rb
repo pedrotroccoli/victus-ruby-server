@@ -12,8 +12,14 @@
 
     field :name, type: String
     field :description, type: String
+
     field :start_date, type: String
     field :end_date, type: String
+
+    field :last_check, type: Date, optional: true
+
+    field :recurrence_type, type: String, optional: true
+    field :recurrence_details, type: Hash, optional: true
 
     private
 

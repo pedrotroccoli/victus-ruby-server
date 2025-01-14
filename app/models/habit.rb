@@ -16,10 +16,10 @@
     field :start_date, type: String
     field :end_date, type: String
 
-    field :last_check, type: Date, optional: true
+    field :last_check, type: Date
 
-    field :recurrence_type, type: String, optional: true
-    field :recurrence_details, type: Hash, optional: true
+    field :recurrence_type, type: String
+    field :recurrence_details, type: Hash
 
     private
 

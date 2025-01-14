@@ -24,7 +24,10 @@ module Victus
     config.middleware.use Rack::Cors do
       allow do
         origins 'https://*.victusjournal.com', 'http://localhost:5275'
-        resource '*', headers: :any, methods: [:get, :post, :put, :patch, :delete, :options, :head]
+        resource '*', headers: :any, methods: [:get, :post, :put, :patch, :delete, :options, :head],
+          expose: %w[Origin Content-Type Accept Authorization
+                        Access-Control-Allow-Origin Access-Control-Allow-Origin Access-Control-Allow-Credentials]
+        
       end
     end
   end

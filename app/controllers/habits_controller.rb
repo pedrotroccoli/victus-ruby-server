@@ -4,7 +4,7 @@ class HabitsController < ApplicationController
   def show
     @habit = Habit.where(account_id: @current_account[:id]).find(params[:id])
 
-    render json: @habit, 
+    render json: @habit
   end
 
   def index

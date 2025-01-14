@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   get 'ping', to: 'ping#index'
+  post 'ping', to: 'ping#index'
 
   scope :api do
     scope :v1 do

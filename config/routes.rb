@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'ping', to: 'ping#index'
+
   scope :api do
     scope :v1 do
       get 'auth/test', to: 'auth#test'

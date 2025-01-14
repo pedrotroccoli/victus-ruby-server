@@ -21,13 +21,10 @@ module Victus
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    config.middleware.use Rack::Cors do
+    config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins 'https://*.victusjournal.com', 'http://localhost:5275'
+        origins 'https://app.victusjournal.com', 'https://dev.victusjournal.com', 'http://localhost:5275'
         resource '*', headers: :any, methods: [:get, :post, :put, :patch, :delete, :options, :head],
-          expose: %w[Origin Content-Type Accept Authorization
-                        Access-Control-Allow-Origin Access-Control-Allow-Origin Access-Control-Allow-Credentials]
-        
       end
     end
   end

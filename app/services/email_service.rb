@@ -20,10 +20,11 @@ class EmailService
 
     email.add_personalization(personalization)
 
-    email.send
+    response = email.send
+
+    raise response.body if response.status > 299 || response.status < 200
 
     rescue => e
-      puts e
-    end
+      puts "\n\n\n", "Email error: \n", e, "\n\n\n"
   end
 end

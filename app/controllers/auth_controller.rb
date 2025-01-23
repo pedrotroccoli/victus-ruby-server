@@ -41,7 +41,7 @@ class AuthController < ApplicationController
     if account.save
       token = JWT.encode({ account_id: account.id }, ENV['JWT_SECRET'], 'HS256')
 
-      EmailService.new.send_welcome_email(account)
+      EmailJob.perform_later(account.id)
 
       render json: { token: token, message: 'Signed up successfully' }, status: :ok
     else

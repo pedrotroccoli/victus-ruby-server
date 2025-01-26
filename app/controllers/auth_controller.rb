@@ -30,7 +30,11 @@ class AuthController < ApplicationController
   end
 
   def sign_up
-    accounts_params = params.require(:account).permit(:email, :password, :name)
+    accounts_params = params.require(:account).permit(:email, :password, :name, :phone, :password_confirmation)
+
+    if accounts_params[:password] != accounts_params[:password_confirmation]
+      return render json: { message: 'Password and password confirmation do not match' }, status: :unauthorized
+    end
 
     already_exists = Account.find_by(email: accounts_params[:email])
 
@@ -47,5 +51,11 @@ class AuthController < ApplicationController
     else
       render json: { message: 'Invalid email or password' }, status: :unauthorized
     end
+  end
+
+  private
+
+  def authorize_request
+    @current_account = Account.find_by(id: request.headers['Authorization'].split(' ').last)
   end
 end

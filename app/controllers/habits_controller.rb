@@ -13,6 +13,14 @@ class HabitsController < ApplicationController
     render json: @habits
   end
 
+  def update
+    @habit = Habit.where(account_id: @current_account[:id]).find(params[:id])
+
+    @habit.update!(update_params)
+
+    render json: @habit, status: :ok
+  end
+
   def create
     habit = Habit.new(habit_params)
     habit.account_id = @current_account[:id]
@@ -28,5 +36,9 @@ class HabitsController < ApplicationController
 
   def habit_params
     params.require(:habit).permit(:name, :description, :start_date, :end_date, :recurrence_type, :recurrence_details)
+  end
+
+  def update_params
+    params.require(:habit).permit(:order, :name)
   end
 end

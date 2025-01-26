@@ -1,9 +1,3 @@
-require 'mailersend-ruby'
-
-
-
-
-
 class AuthController < ApplicationController
   before_action :authorize_request, only: :me
 
@@ -51,11 +45,5 @@ class AuthController < ApplicationController
     else
       render json: { message: 'Invalid email or password' }, status: :unauthorized
     end
-  end
-
-  private
-
-  def authorize_request
-    @current_account = Account.find_by(id: request.headers['Authorization'].split(' ').last)
   end
 end

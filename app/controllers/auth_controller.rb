@@ -1,10 +1,6 @@
 class AuthController < ApplicationController
   before_action :authorize_request, only: :me
 
-  def test
-    render json: { message: ENV['JWT_SECRET'] }, status: :ok
-  end
-
   def me
     render json: @current_account, serializer: AccountSerializer, status: :ok
   end

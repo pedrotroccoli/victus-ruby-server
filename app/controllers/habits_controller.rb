@@ -8,7 +8,12 @@ class HabitsController < ApplicationController
   end
 
   def index
-    @habits = Habit.where(account_id: @current_account[:id])
+    week_days = 7
+
+    start_date = DateInternal.parse(params[:start_date], Date.today - week_days)
+    end_date = DateInternal.parse(params[:end_date], Date.today + week_days)
+
+    @habits = Habit.where(account_id: @current_account[:id]).where(start_date: start_date..end_date, end_date: start_date..end_date)
 
     render json: @habits
   end

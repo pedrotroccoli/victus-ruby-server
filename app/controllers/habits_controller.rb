@@ -13,7 +13,11 @@ class HabitsController < ApplicationController
     start_date = DateInternal.parse(params[:start_date], Date.today - week_days)
     end_date = DateInternal.parse(params[:end_date], Date.today + week_days)
 
-    @habits = Habit.where(account_id: @current_account[:id]).where(start_date: start_date..end_date, end_date: start_date..end_date)
+    @habits = Habit.where(account_id: @current_account[:id])
+      .where(start_date: start_date..end_date)
+      .where(end_date: nil)
+      .or(Habit.where(end_date: start_date..end_date))
+      .order(order: :asc)
 
     render json: @habits
   end

@@ -70,3 +70,5 @@ gem 'active_model_serializers'
 gem 'mailersend-ruby'
 
 gem 'sidekiq'
+
+gem 'rrule'

@@ -25,22 +25,23 @@ class HabitsCheckController < ApplicationController
   end
 
   def create
-    today_start = Time.current.beginning_of_day
-    today_end = Time.current.end_of_day
-    already_checked = @habit.habit_checks.where(account_id: @current_account[:id])
-                                         .where(:finished_at.gte => today_start, :finished_at.lte => today_end)
-                                         .first
-    if already_checked.present?
-      render json: { error: 'Already checked today' }, status: :unprocessable_entity
-      return
-    end
+     today_start = Time.current.beginning_of_day
+     today_end = Time.current.end_of_day
+     already_checked = @habit.habit_checks.where(account_id: @current_account[:id])
+                                          .where(:finished_at.gte => today_start, :finished_at.lte => today_end)
+                                          .first
 
-    habit_check = @habit.habit_checks.new(finished_at: Time.current, checked: true)
-    habit_check.account_id = @current_account[:id]
+     if already_checked.present?
+       render json: { error: 'Already checked today' }, status: :unprocessable_entity
+       return
+     end
 
-    habit_check.save!
+     habit_check = @habit.habit_checks.new(finished_at: Time.current, checked: true)
+     habit_check.account_id = @current_account[:id]
 
-    render json: habit_check, status: :created
+     habit_check.save
+
+     render json: habit_check, status: :created
   end
 
   private

@@ -1,4 +1,4 @@
-  class Habit 
+ class Habit 
     include Mongoid::Document
     include Mongoid::Timestamps
 
@@ -26,8 +26,27 @@
 
     validate :date_validation
     validate :recurrence_type_validation
+    validate :recurrence_details_validation
 
     private
+
+    def recurrence_details_validation
+      required_fields = recurrence_type.present? && recurrence_type != "infinite"
+
+      if required_fields && recurrence_details.blank?
+        errors.add(:recurrence_details, "must be present and have a rule")
+      end
+
+      if required_fields && recurrence_details.present? && recurrence_details[:rule].blank?
+        errors.add(:recurrence_details, "must have a rule")
+      end
+
+      rrule_exists = required_fields && recurrence_details.present? && recurrence_details[:rule].present?
+
+      if rrule_exists && !RruleInternal.validate_rrule(recurrence_details[:rule])
+        errors.add(:recurrence_details, "RRULE is invalid")
+      end
+    end
 
     def recurrence_type_validation
       if recurrence_type.present? && !%w(infinite daily weekly monthly yearly).include?(recurrence_type)

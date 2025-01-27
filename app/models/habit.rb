@@ -8,7 +8,7 @@
     field :name, type: String
     field :description, type: String
 
-    field :order, type: Float, default: 0.0
+    field :order, type: Float, default: nil
 
     field :start_date, type: String
     field :end_date, type: String

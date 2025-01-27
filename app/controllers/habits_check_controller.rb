@@ -3,7 +3,13 @@ class HabitsCheckController < ApplicationController
   before_action :get_habit, only: [:index, :create, :update]
 
   def all
+    week_days = 7
+
+    start_date = DateInternal.parse(params[:start_date], Date.today - week_days)
+    end_date = DateInternal.parse(params[:end_date], Date.today + week_days)
+
     habit_checks = HabitCheck.where(account_id: @current_account[:id])
+                             .where(:finished_at.gte => start_date, :finished_at.lte => end_date)
 
     render json: habit_checks
   end

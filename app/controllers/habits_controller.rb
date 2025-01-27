@@ -31,11 +31,10 @@ class HabitsController < ApplicationController
   rescue => e
     render json: { error: e.message }, status: :unprocessable_entity
   end
-
   private
 
   def habit_params
-    params.require(:habit).permit(:name, :description, :start_date, :end_date, :recurrence_type, :recurrence_details)
+    params.require(:habit).permit(:name, :description, :start_date, :end_date, :recurrence_type, recurrence_details: [:rule])
   end
 
   def update_params

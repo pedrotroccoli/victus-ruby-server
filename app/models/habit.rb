@@ -4,6 +4,7 @@
 
     belongs_to :account
     has_many :habit_checks
+    belongs_to :habit_category, optional: true
 
     field :name, type: String
     field :description, type: String
@@ -55,6 +56,9 @@
     end
 
     def date_validation
+      # if model is being created
+      return if !new_record?
+
       start_date_obj = Date.parse(start_date) if start_date.present?
 
       if start_date.present? && Date.parse(start_date) < Date.today

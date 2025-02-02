@@ -13,11 +13,14 @@ Rails.application.routes.draw do
       get 'habits/:id', to: 'habits#show'
       get 'habits', to: 'habits#index'
       post 'habits', to: 'habits#create'
+      put 'habits/:id', to: 'habits#update'
 
       get 'habits-check', to: 'habits_check#all'
       get 'habits-check/:habit_id', to: 'habits_check#index'
       post 'habits-check/:habit_id', to: 'habits_check#create'
       put 'habits-check/:habit_id/:check_id', to: 'habits_check#update'
+
+      resources :habits_category, only: [:index, :create, :update, :destroy]
     end
   end
 end

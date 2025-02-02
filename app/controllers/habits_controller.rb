@@ -13,7 +13,7 @@ class HabitsController < ApplicationController
     start_date = DateInternal.parse(params[:start_date], Date.today - week_days)
     end_date = DateInternal.parse(params[:end_date], Date.today + week_days)
 
-    habits_from_account = Habit.where(account_id: @current_account[:id])
+    habits_from_account = Habit.where(account_id: @current_account[:id]).includes(:habit_category)
 
     @habits = habits_from_account
       .where(:$or => [
@@ -23,15 +23,18 @@ class HabitsController < ApplicationController
       ])
       .order_by(:order.asc)
 
-    render json: @habits
+    render json: @habits.as_json(include: :habit_category)
   end
 
   def update
     @habit = Habit.where(account_id: @current_account[:id]).find(params[:id])
 
-    @habit.update!(update_params)
+    @habit.update(update_params)
+
+    puts "\n\n", 'a', @habit.inspect, "\n\n\n"
 
     render json: @habit, status: :ok
+    #render json: { message: "Habit updated" }, status: :ok
   end
 
   def create
@@ -51,6 +54,6 @@ class HabitsController < ApplicationController
   end
 
   def update_params
-    params.require(:habit).permit(:order, :name)
+    params.require(:habit).permit(:order, :name, :habit_category_id)
   end
 end

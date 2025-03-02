@@ -31,10 +31,7 @@ class HabitsController < ApplicationController
 
     @habit.update(update_params)
 
-    puts "\n\n", 'a', @habit.inspect, "\n\n\n"
-
-    render json: @habit, status: :ok
-    #render json: { message: "Habit updated" }, status: :ok
+    render json: @habit, include: :habit_category, status: :ok
   end
 
   def create

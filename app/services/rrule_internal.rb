@@ -1,4 +1,4 @@
-RRULE_REGEX = /\AFREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)(;[A-Z]+=[^;]+)*\z/
+RRULE_REGEX = /\AFREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)(;UNTIL=\d{8}T\d{6}Z)?(;[A-Z]+=[^;]+)*\z/
 
 class RruleInternal
   def self.validate_rrule(rrule)

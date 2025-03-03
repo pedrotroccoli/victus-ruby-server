@@ -1,8 +1,9 @@
 class HabitCheck
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Mongoid::Paranoia
 
-  belongs_to :habit
+  belongs_to :habit 
   belongs_to :account
 
   field :checked, type: Boolean

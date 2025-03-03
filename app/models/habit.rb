@@ -1,9 +1,10 @@
- class Habit 
+class Habit 
     include Mongoid::Document
     include Mongoid::Timestamps
+    include Mongoid::Paranoia
 
     belongs_to :account
-    has_many :habit_checks
+    has_many :habit_checks, dependent: :destroy
     belongs_to :habit_category, optional: true
 
     field :name, type: String

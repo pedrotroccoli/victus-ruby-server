@@ -58,6 +58,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 #####
 
 gem 'mongoid'
+gem 'mongoid_paranoia'
 
 gem 'dotenv'
 gem 'rack-cors'

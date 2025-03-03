@@ -156,6 +156,8 @@ GEM
       activemodel (>= 5.1, < 7.2, != 7.0.0)
       concurrent-ruby (>= 1.0.5, < 2.0)
       mongo (>= 2.18.0, < 3.0.0)
+    mongoid_paranoia (0.6.0)
+      mongoid (>= 7.3)
     msgpack (1.7.2)
     net-imap (0.4.14)
       date
@@ -327,6 +329,7 @@ DEPENDENCIES
   listen (~> 3.3)
   mailersend-ruby
   mongoid
+  mongoid_paranoia
   puma (~> 5.0)
   rack-cors
   rack-mini-profiler (~> 2.0)

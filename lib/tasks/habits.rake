@@ -36,4 +36,18 @@ namespace :habits do
       puts "\n ------------------------------------------------------------"
     end
   end
+
+  task fix_end_date: :environment do
+    accounts = Account.all
+    accounts.each do |account|
+      all_habits = account.habits.order(created_at: :desc).includes(:habit_category)
+
+      all_habits.each do |habit|
+        if habit.recurrence_type == 'infinite' && habit.end_date.present?
+          habit.end_date = nil
+          habit.save!
+        end
+      end
+    end
+  end
 end

@@ -21,6 +21,11 @@ class Habit
     field :recurrence_type, type: String
     field :recurrence_details, type: Hash
 
+    # Delta configuration
+    field :delta_enabled, type: Boolean, default: false
+    embeds_many :habit_deltas, cascade_callbacks: true
+    accepts_nested_attributes_for :habit_deltas, allow_destroy: true
+
     # Validations
     validates :name, presence: true
     validates :start_date, presence: true
@@ -33,17 +38,15 @@ class Habit
     private
 
     def recurrence_details_validation
-      required_fields = recurrence_type.present? && recurrence_type != "infinite"
-
-      if required_fields && recurrence_details.blank?
+      if recurrence_details.blank?
         errors.add(:recurrence_details, "must be present and have a rule")
       end
 
-      if required_fields && recurrence_details.present? && recurrence_details[:rule].blank?
+      if recurrence_details.present? && recurrence_details[:rule].blank?
         errors.add(:recurrence_details, "must have a rule")
       end
 
-      rrule_exists = required_fields && recurrence_details.present? && recurrence_details[:rule].present?
+      rrule_exists = recurrence_details.present? && recurrence_details[:rule].present?
 
       if rrule_exists && !RruleInternal.validate_rrule(recurrence_details[:rule])
         errors.add(:recurrence_details, "RRULE is invalid")

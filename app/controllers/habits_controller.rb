@@ -26,18 +26,31 @@ class HabitsController < ApplicationController
   end
 
   def update
-    @habit.update(update_params)
-
-    render json: @habit, include: :habit_category, status: :ok
+    if @habit.update(update_params)
+      render json: @habit, include: :habit_category, status: :ok
+    else
+      render json: { errors: @habit.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def create
-    habit = Habit.new(habit_params)
+    create_params = habit_params
+
+    habit = Habit.new(create_params.except(:habit_deltas))
     habit.account_id = @current_account[:id]
 
-    habit.save!
+    if create_params[:habit_deltas].present?
+      create_params[:habit_deltas].each do |delta|
+        delta = HabitDelta.new(delta)
+        habit.habit_deltas << delta
+      end
+    end
 
-    render json: habit
+    if habit.save
+      render json: habit, include: :habit_category, status: :created
+    else
+      render json: { errors: habit.errors.full_messages }, status: :unprocessable_entity
+    end
   rescue => e
     render json: { error: e.message }, status: :unprocessable_entity
   end
@@ -57,10 +70,25 @@ class HabitsController < ApplicationController
   end
 
   def habit_params
-    params.require(:habit).permit(:name, :description, :start_date, :end_date, :recurrence_type, recurrence_details: [:rule])
+    params.require(:habit).permit(
+      :name, 
+      :description, 
+      :start_date, 
+      :end_date, 
+      :recurrence_type,
+      :delta_enabled,
+      habit_deltas: [:type, :name, :description, :enabled],
+      recurrence_details: [:rule]
+    )
   end
 
   def update_params
-    params.require(:habit).permit(:order, :name, :habit_category_id)
+    params.require(:habit).permit(
+      :order, 
+      :name, 
+      :habit_category_id, 
+      :delta_enabled, 
+      habit_deltas_attributes: [:id, :type, :name, :description, :enabled, :_destroy]
+    )
   end
 end

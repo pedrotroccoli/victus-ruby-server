@@ -1,6 +1,7 @@
 class HabitsCheckController < ApplicationController
   before_action :authorize_request
-  before_action :get_habit, only: [:index, :create, :update]
+  before_action :get_habit, only: [:show, :index, :create, :update]
+  before_action :get_habit_check, only: [:show, :update_check, :update]
 
   def all
     week_days = 7
@@ -19,22 +20,22 @@ class HabitsCheckController < ApplicationController
 
     render json: habit_checks
   end
+  
+  def show
+    render json: @habit_check
+  end
 
   def update
-    habit_check = @habit.habit_checks.find(params[:check_id])
+    @habit_check.update(update_params)
 
-    habit_check.checked = !habit_check.checked
-
-    habit_check.save!
-
-    render json: habit_check, status: :ok
+    render json: @habit_check, status: :ok
   end
 
   def create
      today_start = Time.current.beginning_of_day
      today_end = Time.current.end_of_day
      already_checked = @habit.habit_checks.where(account_id: @current_account[:id])
-                                          .where(:finished_at.gte => today_start, :finished_at.lte => today_end)
+     .where(:created_at.gte => today_start, :created_at.lte => today_end)
                                           .first
 
      if already_checked.present?
@@ -42,12 +43,29 @@ class HabitsCheckController < ApplicationController
        return
      end
 
-     habit_check = @habit.habit_checks.new(finished_at: Time.current, checked: true)
+     habit_check = @habit.habit_checks.new(checked: create_params[:checked])
+
+     deltas_params = create_params[:deltas]
+
+     if deltas_params.present?
+      deltas_params.each do |delta|
+        delta = HabitCheckDelta.new(habit_delta_id: delta[:habit_delta_id], value: delta[:value], habit_check: habit_check)
+        
+        if delta.valid?
+          habit_check.habit_check_deltas << delta
+        else
+          return render json: { error: delta.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+     end
+
      habit_check.account_id = @current_account[:id]
 
-     habit_check.save
+     habit_check.save!
 
      render json: habit_check, status: :created
+    rescue => e
+      render json: { error: e.message }, status: :unprocessable_entity
   end
 
   private
@@ -56,5 +74,19 @@ class HabitsCheckController < ApplicationController
     @habit = Habit.where(account_id: @current_account[:id]).find(params[:habit_id].to_s)
 
     render json: { error: 'Habit not found' }, status: :not_found if @habit.nil?
+  end
+
+  def get_habit_check
+    @habit_check = @habit.habit_checks.find(params[:check_id].to_s)
+
+    render json: { error: 'Habit check not found' }, status: :not_found if @habit_check.nil?
+  end
+
+  def update_params
+    params.permit(:checked, deltas: [[:habit_delta_id, :value]])
+  end
+
+  def create_params
+    params.permit(:checked, deltas: [[:habit_delta_id, :value]])
   end
 end

@@ -34,13 +34,13 @@ class HabitsController < ApplicationController
   end
 
   def create
-    create_params = habit_params
+    params = create_params
 
-    habit = Habit.new(create_params.except(:habit_deltas))
+    habit = Habit.new(params.except(:habit_deltas))
     habit.account_id = @current_account[:id]
 
-    if create_params[:habit_deltas].present?
-      create_params[:habit_deltas].each do |delta|
+    if params[:habit_deltas].present?
+      params[:habit_deltas].each do |delta|
         delta = HabitDelta.new(delta)
         habit.habit_deltas << delta
       end
@@ -69,7 +69,7 @@ class HabitsController < ApplicationController
     @habit = Habit.where(account_id: @current_account[:id]).find(params[:id])
   end
 
-  def habit_params
+  def create_params
     params.require(:habit).permit(
       :name, 
       :description, 
@@ -88,6 +88,8 @@ class HabitsController < ApplicationController
       :name, 
       :habit_category_id, 
       :delta_enabled, 
+      :recurrence_type,
+      recurrence_details: [:rule],
       habit_deltas_attributes: [:id, :type, :name, :description, :enabled, :_destroy]
     )
   end

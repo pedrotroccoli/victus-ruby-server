@@ -1,4 +1,5 @@
-class HabitsCategoryController < ApplicationController
+module Private
+class HabitsCategoryController < Private::PrivateController
   before_action :authorize_request
 
   def index
@@ -33,4 +34,5 @@ class HabitsCategoryController < ApplicationController
   def habits_category_params
     params.require(:habits_category).permit(:name, :order)
   end
+end
 end

@@ -5,6 +5,8 @@ class Account
 
   has_many :habits
   has_many :habit_checks
+  has_many :moods
+  has_one :subscription
 
   field :name, type: String
   field :email, type: String

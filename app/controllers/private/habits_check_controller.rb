@@ -1,5 +1,5 @@
-class HabitsCheckController < ApplicationController
-  before_action :authorize_request
+module Private
+class HabitsCheckController < Private::PrivateController
   before_action :get_habit, only: [:show, :index, :create, :update]
   before_action :get_habit_check, only: [:show, :update_check, :update]
 
@@ -89,4 +89,5 @@ class HabitsCheckController < ApplicationController
   def create_params
     params.permit(:checked, deltas: [[:habit_delta_id, :value]])
   end
+end
 end

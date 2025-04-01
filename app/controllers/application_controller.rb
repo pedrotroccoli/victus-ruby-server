@@ -14,4 +14,10 @@ class ApplicationController < ActionController::Base
   rescue ActiveRecord::RecordNotFound, JWT::DecodeError
     render json: { error: 'Unauthorized' }, status: :unauthorized
   end
+
+  def check_subscription
+    if @current_account.subscription.nil? || @current_account.subscription.status != 'success'
+      render json: { error: 'Without a valid subscription' }, status: :payment_required
+    end
+  end
 end

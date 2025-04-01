@@ -73,3 +73,8 @@ gem 'mailersend-ruby'
 gem 'sidekiq'
 
 gem 'rrule'
+
+gem 'stripe'
+
+gem 'awesome_print'
+gem 'lograge'

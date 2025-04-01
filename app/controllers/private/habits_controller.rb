@@ -1,5 +1,5 @@
-class HabitsController < ApplicationController
-  before_action :authorize_request
+module Private
+class HabitsController < Private::PrivateController
   before_action :set_habit, only: [:show, :update, :destroy]
 
   def show
@@ -93,4 +93,5 @@ class HabitsController < ApplicationController
       habit_deltas_attributes: [:id, :type, :name, :description, :enabled, :_destroy]
     )
   end
+end
 end

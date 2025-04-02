@@ -81,7 +81,7 @@ class StripeWebhookController < ApplicationController
       if account.subscription.nil?
         account.subscription = Subscription.new(subscription_object)
       else
-        account.subscription.update(subscription_object.)
+        account.subscription.update(subscription_object)
       end
       
       account.subscription.save!

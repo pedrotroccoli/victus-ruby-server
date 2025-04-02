@@ -1,7 +1,5 @@
 module Private
 class HabitsCategoryController < Private::PrivateController
-  before_action :authorize_request
-
   def index
     @habits_categories = HabitCategory.where(account_id: @current_account[:id]).order(order: :asc)
 

@@ -67,6 +67,7 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
+    awesome_print (1.9.2)
     base64 (0.2.0)
     bcrypt (3.1.20)
     bindex (0.8.1)
@@ -133,6 +134,11 @@ GEM
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
     logger (1.6.5)
+    lograge (0.14.0)
+      actionpack (>= 4)
+      activesupport (>= 4)
+      railties (>= 4)
+      request_store (~> 1.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -229,6 +235,8 @@ GEM
     redis-client (0.23.2)
       connection_pool
     regexp_parser (2.9.2)
+    request_store (1.7.0)
+      rack (>= 1.4)
     rexml (3.3.2)
       strscan
     rrule (0.6.0)
@@ -269,6 +277,7 @@ GEM
     sqlite3 (1.7.3-x86-linux)
     sqlite3 (1.7.3-x86_64-darwin)
     sqlite3 (1.7.3-x86_64-linux)
+    stripe (13.5.0)
     strscan (3.1.0)
     thor (1.3.1)
     tilt (2.4.0)
@@ -319,6 +328,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers
+  awesome_print
   bcrypt (~> 3.1.7)
   bootsnap (>= 1.4.4)
   byebug
@@ -327,6 +337,7 @@ DEPENDENCIES
   jbuilder (~> 2.7)
   jwt
   listen (~> 3.3)
+  lograge
   mailersend-ruby
   mongoid
   mongoid_paranoia
@@ -340,6 +351,7 @@ DEPENDENCIES
   sidekiq
   spring
   sqlite3 (~> 1.4)
+  stripe
   turbolinks (~> 5)
   tzinfo-data
   web-console (>= 4.1.0)

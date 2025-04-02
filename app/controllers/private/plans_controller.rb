@@ -4,7 +4,7 @@ yearly = Rails.env.production? ? 'victus_journal_yearly' : 'dev_victus_journal_y
     PLANS = [
       {
         name: 'Plano Mensal',
-        key:  'dev_victus_journal_monthly',
+        key: monthly,
         price: 'R$ 10,00',
         features: [
           {
@@ -23,7 +23,7 @@ yearly = Rails.env.production? ? 'victus_journal_yearly' : 'dev_victus_journal_y
       },
       {
         name: 'Plano Anual',
-        key: 'dev_victus_journal_yearly',
+        key: yearly,
         price: 'R$ 100,00',
         features: [
           {

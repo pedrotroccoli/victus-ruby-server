@@ -84,9 +84,6 @@ class CheckoutController < Private::PrivateController
       metadata: {
         account_id: @current_account.id,
         lookup_key: lookup_key
-      },
-      subscription_data: {
-        trial_period_days: 14
       }
     })
 

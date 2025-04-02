@@ -27,14 +27,61 @@ module Public
 
       account = Account.new(accounts_params)
 
+      lookup_key = params[:lookup_key]
+
+      checkout_url = nil
+
+      if lookup_key.present?
+        customer = Stripe::Customer.create(email: accounts_params[:email])
+
+        account.subscription = Subscription.create(
+          service_details: {
+            status: 'active',
+            sub_status: 'pending_payment',
+            customer_id: customer.id
+          }
+        )
+
+        price = Stripe::Price.list(
+          lookup_keys: [lookup_key],
+          expand: ['data.product']
+        )
+
+        checkout_session = Stripe::Checkout::Session.create(
+          customer: customer.id,
+          mode: 'subscription',
+          line_items: [{ price: price.data.first.id, quantity: 1 }],
+          success_url: "#{ENV['APP_URL']}/checkout/?checkout_success=true",
+          cancel_url: "#{ENV['APP_URL']}/checkout/?checkout_cancel=true",
+          metadata: {
+            account_id: account.id,
+            lookup_key: lookup_key
+          },
+          subscription_data: {
+            trial_period_days: 14
+          }
+        )
+
+        checkout_url = checkout_session.url
+      else 
+        account.subscription = Subscription.new(
+          status: 'active',
+          sub_status: 'trial',
+          service_details: {
+            trial_ends_at: 14.days.from_now
+          }
+        )
+      end
+
       if account.save
+        account.subscription.save
         token = JWT.encode({ account_id: account.id }, ENV['JWT_SECRET'], 'HS256')
 
         EmailJob.perform_later(account.id)
 
-        render json: { token: token, message: 'Signed up successfully' }, status: :ok
+        render json: { token: token, message: 'Signed up successfully', checkout_url: checkout_url }, status: :ok
       else
-        render json: { message: 'Invalid email or password' }, status: :unauthorized
+        render json: { message: 'Something went wrong' }, status: :unauthorized
       end
     end
   end

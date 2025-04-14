@@ -36,8 +36,8 @@ module Public
 
         account.subscription = Subscription.create(
           service_details: {
-            status: 'active',
-            sub_status: 'pending_payment',
+            status: 'pending',
+            sub_status: 'pending_payment_information',
             customer_id: customer.id
           }
         )
@@ -65,8 +65,8 @@ module Public
         checkout_url = checkout_session.url
       else 
         account.subscription = Subscription.new(
-          status: 'active',
-          sub_status: 'trial',
+          status: 'pending',
+          sub_status: 'pending_payment_information',
           service_details: {
             trial_ends_at: 14.days.from_now
           }

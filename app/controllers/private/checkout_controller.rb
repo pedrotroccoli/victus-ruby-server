@@ -40,10 +40,13 @@ class CheckoutController < Private::PrivateController
       })
 
       checkout_session = sessions.data.first
-      metadata = checkout_session.metadata.to_h
 
-      if metadata[:lookup_key].to_s == lookup_key.to_s
-        return render json: { message: 'Existing checkout session found', url: checkout_session.url }
+      if checkout_session.present? && checkout_session.status == 'open'
+        metadata = checkout_session.metadata.to_h
+
+        if metadata[:lookup_key].to_s == lookup_key.to_s
+          return render json: { message: 'Existing checkout session found', url: checkout_session.url }
+        end
       end
     end
 

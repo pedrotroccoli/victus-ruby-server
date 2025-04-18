@@ -19,7 +19,7 @@ Rails.application.routes.draw do
           get 'habits-check/:habit_id', to: 'habits_check#index'
           get 'habits-check/:habit_id/:check_id', to: 'habits_check#show'
           post 'habits-check/:habit_id', to: 'habits_check#create'
-          put 'habits-check/:habit_id/:check_id', to: 'habits_check#update_check'
+          put 'habits-check/:habit_id/:check_id', to: 'habits_check#update'
 
           resources :habits_category, only: [:index, :create, :update, :destroy]
           resources :mood

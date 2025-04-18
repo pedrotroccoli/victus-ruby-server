@@ -1,7 +1,7 @@
 module Private
 class HabitsCheckController < Private::PrivateController
   before_action :get_habit, only: [:show, :index, :create, :update]
-  before_action :get_habit_check, only: [:show, :update_check, :update]
+  before_action :get_habit_check, only: [:show, :update]
 
   def all
     week_days = 7
@@ -10,7 +10,7 @@ class HabitsCheckController < Private::PrivateController
     end_date = DateInternal.parse(params[:end_date], Date.today + week_days)
 
     habit_checks = HabitCheck.where(account_id: @current_account[:id])
-                             .where(:finished_at.gte => start_date, :finished_at.lte => end_date)
+                             .where(:created_at.gte => start_date, :created_at.lte => end_date)
 
     render json: habit_checks
   end
@@ -35,9 +35,8 @@ class HabitsCheckController < Private::PrivateController
      today_start = Time.current.beginning_of_day
      today_end = Time.current.end_of_day
      already_checked = @habit.habit_checks.where(account_id: @current_account[:id])
-     .where(:created_at.gte => today_start, :created_at.lte => today_end)
-                                          .first
-
+     .where(:created_at.gte => today_start, :created_at.lte => today_end).first
+     
      if already_checked.present?
        render json: { error: 'Already checked today' }, status: :unprocessable_entity
        return

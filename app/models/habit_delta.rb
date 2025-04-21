@@ -14,7 +14,7 @@ class HabitDelta
   embedded_in :habit
   
   def self.types
-    %w(number string)
+    %w(number string time)
   end
 
   validate :validate_type

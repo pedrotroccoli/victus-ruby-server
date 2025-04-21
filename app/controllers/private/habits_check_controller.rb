@@ -27,33 +27,26 @@ class HabitsCheckController < Private::PrivateController
 
   def update
     if update_params[:habit_check_deltas_attributes].present?
-      existing_deltas = @habit_check.habit_check_deltas.each_with_object({}) do |delta, hash|
-        hash[delta.habit_delta_id] = delta
-      end
+      existing_deltas = @habit_check.habit_check_deltas.where(:habit_delta_id.in => update_params[:habit_check_deltas_attributes].map { |delta| delta[:habit_delta_id] })
+      existing_deltas_hash = existing_deltas.each_with_object({}) { |delta, hash| hash[delta.habit_delta_id] = delta }
 
-      unique_list = update_params[:habit_check_deltas_attributes].uniq { |delta| delta[:habit_delta_id] }
+      non_existing_deltas = update_params[:habit_check_deltas_attributes].reject { |delta| existing_deltas.any? { |existing_delta| existing_delta.habit_delta_id == delta[:habit_delta_id] } }
+      non_existing_deltas_hash = non_existing_deltas.each_with_object({}) { |delta, hash| hash[delta[:habit_delta_id]] = delta }
 
-      new_delta_list = unique_list.map do |delta|
-        already_exists = existing_deltas[delta[:habit_delta_id]]
-
-
-        if already_exists
-          new_delta = delta.merge(_id: already_exists._id).reject { |key, value| key == 'habit_delta_id' }
-
-          new_delta
+      update_params[:habit_check_deltas_attributes].map do |delta|
+        if existing_deltas_hash[delta[:habit_delta_id]].present?
+          if (delta[:_destroy])
+            existing_deltas_hash[delta[:habit_delta_id]].destroy
+          else
+            existing_deltas_hash[delta[:habit_delta_id]].update(value: delta[:value])
+          end
         else
-          delta
+          HabitCheckDelta.create(value: delta[:value], habit_delta_id: delta[:habit_delta_id], habit_check: @habit_check)
         end
       end
-
-      new_params = update_params.merge(habit_check_deltas_attributes: new_delta_list)
-
-      @habit_check.update(new_params)
-
-      return render json: @habit_check, status: :ok
     end
 
-    @habit_check.update(update_params)
+    @habit_check.update(update_params.reject { |key, value| key == 'habit_check_deltas_attributes' })
 
     render json: @habit_check, status: :ok
   end
@@ -64,10 +57,10 @@ class HabitsCheckController < Private::PrivateController
      already_checked = @habit.habit_checks.where(account_id: @current_account[:id])
      .where(:created_at.gte => today_start, :created_at.lte => today_end).first
      
-     if already_checked.present?
-       render json: { error: 'Already checked today' }, status: :unprocessable_entity
-       return
-     end
+    #  if already_checked.present?
+    #    render json: { error: 'Already checked today' }, status: :unprocessable_entity
+    #    return
+    #  end
 
      habit_check = @habit.habit_checks.new(checked: create_params[:checked])
 
@@ -75,8 +68,8 @@ class HabitsCheckController < Private::PrivateController
 
      if deltas_params.present?
       deltas_params.each do |delta|
-        delta = HabitCheckDelta.new(habit_delta_id: delta[:habit_delta_id], value: delta[:value], habit_check: habit_check)
-        
+        delta = HabitCheckDelta.create(habit_delta_id: delta[:habit_delta_id], value: delta[:value], habit_check: habit_check)
+
         if delta.valid?
           habit_check.habit_check_deltas << delta
         else

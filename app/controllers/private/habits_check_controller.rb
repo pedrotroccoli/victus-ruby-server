@@ -26,6 +26,33 @@ class HabitsCheckController < Private::PrivateController
   end
 
   def update
+    if update_params[:habit_check_deltas_attributes].present?
+      existing_deltas = @habit_check.habit_check_deltas.each_with_object({}) do |delta, hash|
+        hash[delta.habit_delta_id] = delta
+      end
+
+      unique_list = update_params[:habit_check_deltas_attributes].uniq { |delta| delta[:habit_delta_id] }
+
+      new_delta_list = unique_list.map do |delta|
+        already_exists = existing_deltas[delta[:habit_delta_id]]
+
+
+        if already_exists
+          new_delta = delta.merge(_id: already_exists._id).reject { |key, value| key == 'habit_delta_id' }
+
+          new_delta
+        else
+          delta
+        end
+      end
+
+      new_params = update_params.merge(habit_check_deltas_attributes: new_delta_list)
+
+      @habit_check.update(new_params)
+
+      return render json: @habit_check, status: :ok
+    end
+
     @habit_check.update(update_params)
 
     render json: @habit_check, status: :ok
@@ -82,7 +109,7 @@ class HabitsCheckController < Private::PrivateController
   end
 
   def update_params
-    params.permit(:checked, deltas: [[:habit_delta_id, :value]])
+    params.permit(:checked, habit_check_deltas_attributes: [[:habit_delta_id, :value, :_destroy]])
   end
 
   def create_params

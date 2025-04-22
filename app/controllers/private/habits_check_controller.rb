@@ -10,7 +10,7 @@ class HabitsCheckController < Private::PrivateController
     end_date = DateInternal.parse(params[:end_date], Date.today + week_days)
 
     habit_checks = HabitCheck.where(account_id: @current_account[:id])
-                             .where(:created_at.gte => start_date, :created_at.lte => end_date)
+                             .where(:finished_at.gte => start_date.beginning_of_day, :finished_at.lte => end_date.end_of_day)
 
     render json: habit_checks
   end

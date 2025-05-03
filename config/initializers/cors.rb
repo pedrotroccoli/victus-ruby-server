@@ -8,10 +8,13 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'https://app.victusjournal.com', 'https://dev.victusjournal.com', 'http://localhost:5275'
+    origins 'https://app.victusjournal.com', 'https://dev.victusjournal.com', 'http://localhost:5275',
+            'https://victusapp.ngrok.app', 'https://victusserver.ngrok.app'
 
     resource '*',
       headers: :any,
-      methods: [:get, :post, :put, :patch, :delete, :options, :head]
+      methods: [:get, :post, :put, :patch, :delete, :options, :head],
+      credentials: true,
+      expose: ['access-control-allow-origin', 'access-control-allow-credentials']
   end
 end

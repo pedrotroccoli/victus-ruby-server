@@ -12,6 +12,10 @@ class Account
   field :email, type: String
   field :password_digest, type: String
   field :phone, type: String, default: nil
+  field :world_address, type: String, default: nil
+  field :connected_providers, type: Array, default: ['web']
 
-  has_secure_password
+  validates :world_address, uniqueness: true, allow_nil: true
+
+  has_secure_password validations: false
 end

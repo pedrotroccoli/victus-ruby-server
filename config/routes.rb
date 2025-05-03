@@ -30,9 +30,11 @@ Rails.application.routes.draw do
       end
 
       scope module: 'public' do
-
         post 'auth/sign-in', to: 'auth#sign_in'
         post 'auth/sign-up', to: 'auth#sign_up'
+
+        get 'auth/start_siwe_auth', to: 'auth#start_siwe_auth'
+        post 'auth/siwe_verify', to: 'auth#siwe_verify'
       end
 
       scope module: 'internal' do

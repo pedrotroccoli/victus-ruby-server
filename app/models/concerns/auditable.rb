@@ -3,11 +3,18 @@ module Auditable
 
   included do
     after_create  :log_create
+    before_update :store_changes
     after_update  :log_update
     after_destroy :log_destroy
+    
+    attr_accessor :stored_changes
   end
 
   private
+
+  def store_changes
+    self.stored_changes = self.changes.except("_id", "updated_at", "created_at")
+  end
 
   def log_create
     AuditLog.create!(
@@ -19,17 +26,13 @@ module Auditable
   end
 
   def log_update
-    # Mongoid specific: Use attribute_changes instead of changes
-    # and check changed? to verify if there are changes
-    changes_to_log = self.changes.except("_id", "updated_at", "created_at")
-    puts "changes_to_log: #{self.changed?}"
-    return if changes_to_log.empty?
+    return if stored_changes.blank? || stored_changes.empty?
     
     AuditLog.create!(
       auditable_type: self.class.name,
       auditable_id: self.id,
       action: "update",
-      item_changes: changes_to_log
+      item_changes: stored_changes
     )
   end
 

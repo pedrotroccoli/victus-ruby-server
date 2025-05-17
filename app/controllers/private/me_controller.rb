@@ -5,5 +5,17 @@ module Private
     def me
       render json: @current_account, serializer: AccountSerializer, status: :ok
     end
+
+    def update_me
+      @current_account.update(account_params)
+      render json: @current_account, serializer: AccountSerializer, status: :ok
+    end
+
+    private
+
+    def account_params
+      params.require(:account).permit(:name)
+    end
+    
   end
 end

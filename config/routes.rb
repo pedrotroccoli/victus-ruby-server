@@ -8,6 +8,7 @@ Rails.application.routes.draw do
           get 'auth/test', to: 'auth#test'
 
           get 'me', to: 'me#me'
+          put 'me', to: 'me#update_me'
 
           get 'habits/:id', to: 'habits#show'
           get 'habits', to: 'habits#index'

@@ -30,25 +30,25 @@ class CheckoutController < Private::PrivateController
       return render json: { error: 'Account already has an active subscription' }, status: :unprocessable_entity
     end
 
-    if @current_account.subscription.present? && @current_account.subscription.status == 'pending'
-      customer_id = @current_account.subscription.service_details['customer_id']
+    # if @current_account.subscription.present? && @current_account.subscription.status == 'pending'
+    #   customer_id = @current_account.subscription.service_details['customer_id']
 
-      sessions = Stripe::Checkout::Session.list({
-        customer: customer_id,
-        limit: 1,
-        status: 'open'
-      })
+    #   sessions = Stripe::Checkout::Session.list({
+    #     customer: customer_id,
+    #     limit: 1,
+    #     status: 'open'
+    #   })
 
-      checkout_session = sessions.data.first
+    #   checkout_session = sessions.data.first
 
-      if checkout_session.present? && checkout_session.status == 'open' && checkout_session.allow_promotion_codes == true
-        metadata = checkout_session.metadata.to_h
+    #   if checkout_session.present? && checkout_session.status == 'open' && checkout_session.allow_promotion_codes == true
+    #     metadata = checkout_session.metadata.to_h
 
-        if metadata[:lookup_key].to_s == lookup_key.to_s
-          return render json: { message: 'Existing checkout session found', url: checkout_session.url }
-        end
-      end
-    end
+    #     if metadata[:lookup_key].to_s == lookup_key.to_s
+    #       return render json: { message: 'Existing checkout session found', url: checkout_session.url }
+    #     end
+    #   end
+    # end
 
     if @current_account.subscription.nil?
       customer = Stripe::Customer.create(

@@ -41,7 +41,7 @@ class CheckoutController < Private::PrivateController
 
       checkout_session = sessions.data.first
 
-      if checkout_session.present? && checkout_session.status == 'open'
+      if checkout_session.present? && checkout_session.status == 'open' && checkout_session.allow_promotion_codes == true
         metadata = checkout_session.metadata.to_h
 
         if metadata[:lookup_key].to_s == lookup_key.to_s
@@ -87,7 +87,8 @@ class CheckoutController < Private::PrivateController
       metadata: {
         account_id: @current_account.id,
         lookup_key: lookup_key
-      }
+      },
+      allow_promotion_codes: true
     })
 
     render json: { message: 'Subscription created', url: session.url, test: session }

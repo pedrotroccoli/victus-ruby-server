@@ -92,8 +92,7 @@ module Public
     end
 
     def start_siwe_auth
-      #nonce = Siwe::Util.generate_nonce
-      nonce = '451999bb'
+      nonce = Siwe::Util.generate_nonce
 
       cookies.signed[:siwe_nonce] = {
         value: nonce,
@@ -101,8 +100,6 @@ module Public
         httponly: true,
         secure: Rails.env.production?
       }
-
-      puts "\n\n #{cookies.signed[:siwe_nonce]} \n\n"
 
       render json: { nonce: nonce }, status: :ok
     end

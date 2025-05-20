@@ -80,3 +80,5 @@ gem 'awesome_print'
 gem 'lograge'
 
 gem 'aws-sdk-lambda'
+
+gem 'siwe'

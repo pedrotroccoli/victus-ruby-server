@@ -64,7 +64,8 @@ module Public
           },
           subscription_data: {
             trial_period_days: 14
-          }
+          },
+          allow_promotion_codes: true
         )
 
         checkout_url = checkout_session.url

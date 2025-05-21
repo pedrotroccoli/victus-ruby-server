@@ -3,7 +3,7 @@ class HabitsController < Private::PrivateController
   before_action :set_habit, only: [:show, :update, :destroy]
 
   def show
-    render json: @habit
+    render json: @habit, include: :habit_category
   end
 
   def index
@@ -35,6 +35,12 @@ class HabitsController < Private::PrivateController
 
   def create
     params = create_params
+
+    # if params[:parent_habit_id].present?
+    #   parent_habit = Habit.find(params[:parent_habit_id])
+
+    #   return render json: { error: 'Parent habit is not enabled', code: "1" }, status: :unprocessable_entity if !parent_habit.children_enabled
+    # end
 
     habit = Habit.new(params.except(:habit_deltas))
     habit.account_id = @current_account[:id]
@@ -77,6 +83,9 @@ class HabitsController < Private::PrivateController
       :end_date, 
       :recurrence_type,
       :delta_enabled,
+      # :parent_habit_id,
+      # :children_enabled
+      :habit_category_id,
       habit_deltas: [:type, :name, :description, :enabled],
       recurrence_details: [:rule]
     )
@@ -89,8 +98,9 @@ class HabitsController < Private::PrivateController
       :habit_category_id, 
       :delta_enabled, 
       :recurrence_type,
+      # :children_enabled,
       recurrence_details: [:rule],
-      habit_deltas_attributes: [:id, :type, :name, :description, :enabled, :_destroy]
+      habit_deltas_attributes: [:id, :name, :description, :enabled, :_destroy]
     )
   end
 end

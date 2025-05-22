@@ -3,40 +3,40 @@ yearly = Rails.env.production? ? 'victus_journal_yearly' : 'dev_victus_journal_y
 
     PLANS = [
       {
-        name: 'Plano Mensal',
+        plan_key: 'monthly',
         key: monthly,
-        price: 'R$ 10,00',
+        price: 'R$ 15,00',
         features: [
           {
-            name: 'Criação de 50 hábitos',
+            key: 'monthly_habit_creation',
           },
           {
-            name: 'Criação de Deltas',
+            key: 'monthly_delta_creation',
           },
           {
-            name: 'Analytics avançado'
+            key: 'monthly_analytics',
           },
           {
-            name: 'Suporte via chat (Email)'
+            key: 'monthly_support',
           }
         ]
       },
       {
-        name: 'Plano Anual',
+        plan_key: 'yearly',
         key: yearly,
-        price: 'R$ 100,00',
+        price: 'R$ 8,33',
         features: [
           {
-            name: 'Criação de infinitos hábitos',
-          },
-          { 
-            name: 'Criação de Deltas',
+            key: 'yearly_habit_creation',
           },
           {
-            name: 'Analytics avançado'
+            key: 'yearly_delta_creation',
           },
           {
-            name: 'Suporte via chat (Email e WhatsApp)'
+            key: 'yearly_analytics',
+          },
+          {
+            key: 'yearly_support',
           }
         ]
       }

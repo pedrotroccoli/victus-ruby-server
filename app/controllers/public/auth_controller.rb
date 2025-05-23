@@ -37,35 +37,23 @@ module Public
       checkout_url = nil
 
       if lookup_key.present?
-        customer = Stripe::Customer.create(email: accounts_params[:email])
+        stripe_service = StripeService.new
+
+        customer = stripe_service.create_customer(email: accounts_params[:email])
 
         account.subscription = Subscription.create(
+          service_type: 'stripe',
+          status: 'freezed',
+          sub_status: 'pending_payment_information',
           service_details: {
-            status: 'pending',
-            sub_status: 'pending_payment_information',
-            customer_id: customer.id
+            customer_id: customer.id,
           }
         )
 
-        price = Stripe::Price.list(
-          lookup_keys: [lookup_key],
-          expand: ['data.product']
-        )
-
-        checkout_session = Stripe::Checkout::Session.create(
-          customer: customer.id,
-          mode: 'subscription',
-          line_items: [{ price: price.data.first.id, quantity: 1 }],
-          success_url: "#{ENV['APP_URL']}/checkout/?checkout_success=true",
-          cancel_url: "#{ENV['APP_URL']}/checkout/?checkout_cancel=true",
-          metadata: {
-            account_id: account.id,
-            lookup_key: lookup_key
-          },
-          subscription_data: {
-            trial_period_days: 14
-          },
-          allow_promotion_codes: true
+        checkout_session = stripe_service.create_checkout(
+          customer_id: customer.id,
+          account_id: account.id, 
+          lookup_key: lookup_key
         )
 
         checkout_url = checkout_session.url

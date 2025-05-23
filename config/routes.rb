@@ -28,6 +28,8 @@ Rails.application.routes.draw do
           post 'checkout/create', to: 'checkout#create'
 
           get 'plans', to: 'plans#index'
+
+          post 'subscription/create_session', to: 'subscription#create_session'
       end
 
       scope module: 'public' do

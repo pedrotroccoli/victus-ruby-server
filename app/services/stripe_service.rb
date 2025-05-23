@@ -11,7 +11,7 @@ class StripeService
       expand: ['data.product']
     )
 
-    Stripe::Checkout::Session.create(
+    stripe::Checkout::Session.create(
       customer: customer_id,
       mode: 'subscription',
       line_items: [{ price: price.data.first.id, quantity: 1 }],

@@ -42,10 +42,10 @@ class StripeService
     stripe::Customer.create(email: email)
   end
 
-  def create_subscription(params)
-    stripe::Subscription.create({
+  def create_subscription_session(params)
+    stripe::BillingPortal::Session.create({
       customer: params[:customer],
-      items: [{ price: params[:price] }]
+      return_url: params[:return_url]
     })
   end
 

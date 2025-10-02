@@ -3,6 +3,8 @@ class HabitDelta
   include Mongoid::Timestamps
   include Mongoid::Paranoia
 
+  embedded_in :habit
+
   field :type, type: String
   field :name, type: String
   field :description, type: String
@@ -11,13 +13,11 @@ class HabitDelta
   validates :type, presence: true
   validates :name, presence: true
 
-  embedded_in :habit
-  
+  validate :validate_type
+
   def self.types
     %w(number string time)
   end
-
-  validate :validate_type
 
   private
     def validate_type

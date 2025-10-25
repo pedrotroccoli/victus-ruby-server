@@ -11,6 +11,9 @@ class Habit
     belongs_to :parent_habit, class_name: 'Habit', optional: true
     has_many :children_habits, class_name: 'Habit', foreign_key: :parent_habit_id, dependent: :destroy
 
+    field :rule_engine_enabled, type: Boolean, default: false 
+    field :rule_engine_details, type: Hash
+
     field :name, type: String
     field :description, type: String
 

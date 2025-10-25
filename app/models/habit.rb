@@ -8,6 +8,9 @@ class Habit
     has_many :habit_checks, dependent: :destroy
     belongs_to :habit_category, optional: true
 
+    belongs_to :parent_habit, class_name: 'Habit', optional: true
+    has_many :children_habits, class_name: 'Habit', foreign_key: :parent_habit_id, dependent: :destroy
+
     field :name, type: String
     field :description, type: String
 

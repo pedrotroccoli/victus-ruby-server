@@ -82,3 +82,5 @@ gem 'lograge'
 gem 'aws-sdk-lambda'
 
 gem 'siwe'
+
+gem 'dry-validation'

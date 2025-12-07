@@ -98,6 +98,8 @@ class HabitsController < Private::PrivateController
       :habit_category_id, 
       :delta_enabled, 
       :recurrence_type,
+      :paused_at,
+      :finished_at,
       # :children_enabled,
       recurrence_details: [:rule],
       habit_deltas_attributes: [:id, :name, :description, :enabled, :_destroy]

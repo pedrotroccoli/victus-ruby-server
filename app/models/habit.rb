@@ -19,8 +19,12 @@ class Habit
 
     field :order, type: Float, default: nil
 
-    field :start_date, type: String
-    field :end_date, type: String
+    field :start_date, type: DateTime
+    field :end_date, type: DateTime
+
+    field :finished_at, type: DateTime
+    field :paused_at, type: DateTime
+
 
     field :last_check, type: Date
 

@@ -297,9 +297,7 @@ production:
 test:
   clients:
     default:
-      database: victus_test
-      hosts:
-        - localhost:27017
+      uri: <%= ENV['MONGO_TEST_URI'] || 'mongodb://admin:password@localhost:27017/victus_test?authSource=admin' %>
       options:
         read:
           mode: :primary

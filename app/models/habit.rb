@@ -22,9 +22,8 @@ class Habit
     field :start_date, type: DateTime
     field :end_date, type: DateTime
 
-    field :finished_at, type: DateTime
-    field :paused_at, type: DateTime
-
+    field :finished_at, type: DateTime, default: nil
+    field :paused_at, type: DateTime, default: nil
 
     field :last_check, type: Date
 
@@ -49,12 +48,18 @@ class Habit
     private
 
     def recurrence_details_validation
+      # Only validate on create, or if recurrence_details is explicitly being set
+      # Skip validation on update if recurrence_details is not being changed
+      return if !new_record? && recurrence_details.blank?
+      
       if recurrence_details.blank?
         errors.add(:recurrence_details, "must be present and have a rule")
+        return
       end
 
       if recurrence_details.present? && recurrence_details[:rule].blank?
         errors.add(:recurrence_details, "must have a rule")
+        return
       end
 
       rrule_exists = recurrence_details.present? && recurrence_details[:rule].present?
@@ -74,14 +79,21 @@ class Habit
       # if model is being created
       return if !new_record?
 
-      start_date_obj = Date.parse(start_date) if start_date.present?
-
-      if start_date.present? && Date.parse(start_date) < Date.today
-        errors.add(:start_date, "must be in the future")
+      if start_date.present?
+        start_date_obj = start_date.is_a?(String) ? Date.parse(start_date) : start_date.to_date
+        
+        if start_date_obj < Date.today
+          errors.add(:start_date, "must be in the future")
+        end
       end
 
-      if start_date.present? && end_date.present? && start_date >= end_date
-        errors.add(:start_date, "must be before the end date")
+      if start_date.present? && end_date.present?
+        start_date_obj = start_date.is_a?(String) ? Date.parse(start_date) : start_date.to_date
+        end_date_obj = end_date.is_a?(String) ? Date.parse(end_date) : end_date.to_date
+        
+        if start_date_obj >= end_date_obj
+          errors.add(:start_date, "must be before the end date")
+        end
       end
     end
   end

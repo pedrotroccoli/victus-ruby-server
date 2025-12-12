@@ -17,8 +17,9 @@ class HabitsController < Private::PrivateController
     @habits = habits_from_account
       .where(:$or => [
         { :start_date => { :$gte => start_date, :$lte => end_date } },
-        { :end_date => nil },
-        { :end_date => { :$gte => start_date, :$lte => end_date } }
+        { :end_date => { :$gte => start_date, :$lte => end_date } },
+        { :start_date => { :$lte => start_date }, :end_date => { :$gte => end_date } },
+        { :end_date => nil, :start_date => { :$lte => end_date } }
       ])
       .order_by(:order.asc)
 
@@ -46,31 +47,13 @@ class HabitsController < Private::PrivateController
   end
 
   def create
-    params = create_params
+    operation = Habits::Create.call(params: create_params, account: @current_account)
 
-    # if params[:parent_habit_id].present?
-    #   parent_habit = Habit.find(params[:parent_habit_id])
-
-    #   return render json: { error: 'Parent habit is not enabled', code: "1" }, status: :unprocessable_entity if !parent_habit.children_enabled
-    # end
-
-    habit = Habit.new(params.except(:habit_deltas))
-    habit.account_id = @current_account[:id]
-
-    if params[:habit_deltas].present?
-      params[:habit_deltas].each do |delta|
-        delta = HabitDelta.new(delta)
-        habit.habit_deltas << delta
-      end
-    end
-
-    if habit.save
-      render json: habit, include: :habit_category, status: :created
+    if operation.success?
+      render json: operation[:habit], include: :habit_category, status: :created
     else
-      render json: { errors: habit.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: operation.errors.full_messages }, status: :unprocessable_entity
     end
-  rescue => e
-    render json: { error: e.message }, status: :unprocessable_entity
   end
 
   def destroy

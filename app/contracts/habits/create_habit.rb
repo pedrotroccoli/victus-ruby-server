@@ -44,5 +44,10 @@ class CreateHabitContract < Dry::Validation::Contract
     unless type[type].blank? || type[type].is_a?(Array)
       key.failure("#{type} condition is required and must be an array")
     end
+
+    unless type[type].all? { |condition| condition.is_a?(String) }
+      key.failure("#{type} condition must be an array of strings")
+      next
+    end
   end
 end

@@ -86,3 +86,7 @@ gem 'aws-sdk-lambda'
 gem 'siwe'
 
 gem 'dry-validation'
+
+gem 'trailblazer'
+
+gem 'rspec-rails'

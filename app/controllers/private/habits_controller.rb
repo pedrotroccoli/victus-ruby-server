@@ -26,7 +26,19 @@ class HabitsController < Private::PrivateController
   end
 
   def update
-    if @habit.update(update_params)
+    params_hash = update_params
+
+    if !params_hash[:paused].nil?
+      params_hash[:paused_at] = params_hash[:paused] ? Time.current : nil
+      params_hash.delete(:paused)
+    end
+
+    if params_hash[:finished].present?
+      params_hash[:finished_at] = Time.current
+      params_hash.delete(:finished)
+    end
+
+    if @habit.update(params_hash)
       render json: @habit, include: :habit_category, status: :ok
     else
       render json: { errors: @habit.errors.full_messages }, status: :unprocessable_entity
@@ -98,8 +110,8 @@ class HabitsController < Private::PrivateController
       :habit_category_id, 
       :delta_enabled, 
       :recurrence_type,
-      :paused_at,
-      :finished_at,
+      :paused,
+      :finished,
       # :children_enabled,
       recurrence_details: [:rule],
       habit_deltas_attributes: [:id, :name, :description, :enabled, :_destroy]

@@ -1,5 +1,5 @@
 require 'rails_helper'
-require_relative '../../../app/contracts/habits/create_habit'
+require_relative '../../../app/contracts/habits/create_habit_contract'
 
 RSpec.describe Habits::CreateHabitContract, type: :contract do
   let(:contract) { described_class.new }

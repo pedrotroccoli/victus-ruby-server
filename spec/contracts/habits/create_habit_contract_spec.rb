@@ -271,10 +271,39 @@ RSpec.describe CreateHabitContract, type: :contract do
   end
 
   describe 'date validations' do
+    it 'fails when start_date is in the past' do
+      params = valid_params.merge(
+        start_date: Date.today - 1.day
+      )
+      result = contract.call(params)
+      
+      expect(result).to be_failure
+      expect(result.errors[:start_date]).to be_present
+      expect(result.errors[:start_date].first).to include('must be today or in the future')
+    end
+
+    it 'succeeds when start_date is today' do
+      params = valid_params.merge(
+        start_date: Date.today
+      )
+      result = contract.call(params)
+      
+      expect(result).to be_success
+    end
+
+    it 'succeeds when start_date is in the future' do
+      params = valid_params.merge(
+        start_date: Date.today + 1.day
+      )
+      result = contract.call(params)
+      
+      expect(result).to be_success
+    end
+
     it 'fails when start_date is greater than end_date' do
       params = valid_params.merge(
         start_date: Date.today + 30.days,
-        end_date: Date.today
+        end_date: Date.today + 10.days
       )
       result = contract.call(params)
       
@@ -285,7 +314,7 @@ RSpec.describe CreateHabitContract, type: :contract do
       expect(result.errors[:end_date].first).to include('must be after start_date')
     end
 
-    it 'fails when start_date equals end_date' do
+    it 'succeeds when start_date equals end_date' do
       today = Date.today
       params = valid_params.merge(
         start_date: today,
@@ -293,9 +322,7 @@ RSpec.describe CreateHabitContract, type: :contract do
       )
       result = contract.call(params)
       
-      expect(result).to be_failure
-      expect(result.errors[:start_date]).to be_present
-      expect(result.errors[:end_date]).to be_present
+      expect(result).to be_success
     end
 
     it 'succeeds when start_date is before end_date' do

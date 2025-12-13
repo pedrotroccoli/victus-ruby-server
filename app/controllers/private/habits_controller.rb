@@ -78,11 +78,13 @@ class HabitsController < Private::PrivateController
       :end_date, 
       :recurrence_type,
       :delta_enabled,
+      :rule_engine_enabled,
       # :parent_habit_id,
       # :children_enabled
       :habit_category_id,
       habit_deltas: [:type, :name, :description, :enabled],
-      recurrence_details: [:rule]
+      recurrence_details: [:rule],
+      rule_engine_details: [:logic]
     )
   end
 

@@ -60,8 +60,7 @@ RSpec.describe RruleInternal, type: :service do
       end
 
       it 'rejects nil' do
-        # The code doesn't handle nil properly, it will raise NoMethodError
-        expect { described_class.validate_rrule(nil) }.to raise_error(NoMethodError)
+        expect(described_class.validate_rrule(nil)).to be false
       end
 
       it 'rejects invalid frequency' do
@@ -73,7 +72,6 @@ RSpec.describe RruleInternal, type: :service do
       end
 
       it 'rejects invalid UNTIL format' do
-        # The regex is permissive and accepts invalid UNTIL format, but UNTIL won't be captured
         result = described_class.validate_rrule('FREQ=DAILY;UNTIL=2025-03-27')
         expect(result).to be true
       end
@@ -284,11 +282,9 @@ RSpec.describe RruleInternal, type: :service do
     end
 
     context 'with date out of range' do
-      it 'raises RRule::InvalidRRuleError or NameError' do
+      it 'raises RRule::InvalidRRule' do
         date = Date.parse('2025-03-28')
-        # The code tries to use RRule::InvalidRRuleError which doesn't exist
-        # So it will raise NameError instead
-        expect { instance.is_in_range!(date) }.to raise_error(NameError, /uninitialized constant.*InvalidRRuleError/)
+        expect { instance.is_in_range!(date) }.to raise_error(RRule::InvalidRRule, 'Date is not in range')
       end
     end
 
@@ -296,12 +292,10 @@ RSpec.describe RruleInternal, type: :service do
       let(:rrule) { 'FREQ=WEEKLY;BYDAY=MO,WE,FR' }
       let(:instance) { described_class.new(rrule) }
 
-      it 'raises RRule::InvalidRRuleError or NameError' do
+      it 'raises RRule::InvalidRRule' do
         date = Date.today
         date += 1 until date.tuesday?
-        # The code tries to use RRule::InvalidRRuleError which doesn't exist
-        # So it will raise NameError instead
-        expect { instance.is_in_range!(date) }.to raise_error(NameError, /uninitialized constant.*InvalidRRuleError/)
+        expect { instance.is_in_range!(date) }.to raise_error(RRule::InvalidRRule, 'Date is not in range')
       end
     end
   end

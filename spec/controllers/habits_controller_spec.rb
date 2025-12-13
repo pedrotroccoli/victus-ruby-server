@@ -56,8 +56,12 @@ RSpec.describe Private::HabitsController, type: :controller do
     end
 
     context 'when operation fails' do
-      let(:errors) { double('errors', full_messages: ['Name is required']) }
-      let(:operation_result) { double('operation', success?: false, errors: errors) }
+      let(:errors) { ['Name is required'] }
+      let(:operation_result) do
+        double('operation', success?: false, errors: errors).tap do |op|
+          allow(op).to receive(:[]).with(:errors).and_return(errors)
+        end
+      end
 
       before do
         allow(Habits::Create).to receive(:call).and_return(operation_result)
@@ -74,7 +78,7 @@ RSpec.describe Private::HabitsController, type: :controller do
 
         json_response = JSON.parse(response.body)
         expect(json_response).to have_key('errors')
-        expect(json_response['errors']).to include('Name is required')
+        expect(json_response['errors']).to eq(['Name is required'])
       end
     end
   end

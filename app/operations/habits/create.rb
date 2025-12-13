@@ -1,5 +1,3 @@
-require_relative '../../contracts/habits/create_habit'
-
 module Habits
   class Create < Trailblazer::Operation
     step :validate_params
@@ -16,7 +14,7 @@ module Habits
         return false
       end
 
-      contract_result = CreateHabitContract.new.call(params.to_h)
+      contract_result = Habits::CreateHabitContract.new.call(params.to_h)
 
       if contract_result.failure?
         ctx[:errors] << contract_result.errors

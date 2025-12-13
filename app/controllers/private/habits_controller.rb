@@ -52,7 +52,7 @@ class HabitsController < Private::PrivateController
     if operation.success?
       render json: operation[:habit], include: :habit_category, status: :created
     else
-      render json: { errors: operation.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: operation[:errors] }, status: :unprocessable_entity
     end
   end
 

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require_relative '../../../app/contracts/habits/create_habit'
 
-RSpec.describe CreateHabitContract, type: :contract do
+RSpec.describe Habits::CreateHabitContract, type: :contract do
   let(:contract) { described_class.new }
   
   let(:valid_params) do
@@ -9,7 +9,7 @@ RSpec.describe CreateHabitContract, type: :contract do
       name: "Morning Exercise",
       start_date: Date.today,
       recurrence_type: "daily",
-      recurrence_details: { rule: "daily" },
+      recurrence_details: { rule: "FREQ=DAILY;INTERVAL=1" },
       rule_engine_enabled: false
     }
   end

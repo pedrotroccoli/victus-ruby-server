@@ -1,5 +1,5 @@
 require "test_helper"
-require_relative "../../../app/contracts/habits/create_habit"
+require_relative "../../../app/contracts/habits/create_habit_contract"
 
 class CreateHabitContractTest < ActiveSupport::TestCase
   def setup

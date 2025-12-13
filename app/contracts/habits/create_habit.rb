@@ -15,12 +15,7 @@ class CreateHabitContract < Dry::Validation::Contract
   rule(:rule_engine_details) do
     next if values[:rule_engine_enabled] == false
 
-    unless value.present? 
-      key.failure('logic is required')
-      next
-    end
-
-    if value[:logic].blank?
+    if value.blank? || value[:logic].blank?
       key.failure('logic is required')
       next
     end
@@ -41,11 +36,12 @@ class CreateHabitContract < Dry::Validation::Contract
 
     type = logic[:type]
 
-    unless type[type].blank? || type[type].is_a?(Array)
+    unless logic[type.to_sym].blank? || logic[type.to_sym].is_a?(Array)
       key.failure("#{type} condition is required and must be an array")
+      next
     end
 
-    unless type[type].all? { |condition| condition.is_a?(String) }
+    unless logic[type.to_sym].all? { |condition| condition.is_a?(String) }
       key.failure("#{type} condition must be an array of strings")
       next
     end

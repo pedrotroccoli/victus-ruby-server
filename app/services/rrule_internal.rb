@@ -10,6 +10,8 @@ class RruleInternal
   end
 
   def self.validate_rrule(rrule)
+    return false if rrule.blank?
+
     rrule ||= @rrule
 
     if rrule.match(RRULE_REGEX)

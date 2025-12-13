@@ -16,9 +16,7 @@ module Habits
         return false
       end
 
-      params_with_account = params.merge(account_id: account.id.to_s)
-
-      contract_result = CreateHabitContract.new.call(params_with_account)
+      contract_result = CreateHabitContract.new.call(params.to_h)
 
       if contract_result.failure?
         ctx[:errors] << contract_result.errors
@@ -27,10 +25,10 @@ module Habits
       ctx[:errors].empty?
     end
 
-    def build_habit(ctx, params:, **)
+    def build_habit(ctx, params:, account:, **)
       habit_params = params.except(:habit_deltas)
 
-      ctx[:habit] = Habit.new(habit_params)
+      ctx[:habit] = Habit.new(habit_params.merge(account_id: account.id.to_s))
     end
 
     def assign_account(ctx, account:, **)

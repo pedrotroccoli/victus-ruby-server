@@ -1,5 +1,6 @@
 # FREQ=DAILY;INTERVAL=1;UNTIL=20250327T000000Z
-RRULE_REGEX = /\AFREQ=(?<freq>DAILY|WEEKLY|MONTHLY|YEARLY)(?:;UNTIL=(?<until>\d{8}T\d{6}Z))?(?:;INTERVAL=(?<interval>\d+))?(?:;BYDAY=(?<byday>[^;]+))?(?:;[A-Z]+=?[^;]+)*\z/
+# Regex that captures FREQ (required) and optional parameters in any order
+RRULE_REGEX = /\AFREQ=(?<freq>DAILY|WEEKLY|MONTHLY|YEARLY)(?:;(?:(?:UNTIL=(?<until>\d{8}T\d{6}Z))|(?:INTERVAL=(?<interval>\d+))|(?:BYDAY=(?<byday>[^;]+))|(?:[A-Z]+=[^;]+)))*\z/
 
 class RruleInternal
   def initialize(rrule)
@@ -9,6 +10,8 @@ class RruleInternal
   end
 
   def self.validate_rrule(rrule)
+    return false if rrule.blank?
+
     rrule ||= @rrule
 
     if rrule.match(RRULE_REGEX)
@@ -22,7 +25,7 @@ class RruleInternal
     rrule ||= @rrule
 
     if !validate_rrule(rrule)
-      raise RRule::InvalidRRuleError, "Invalid RRULE"
+      raise RRule::InvalidRRule, "Invalid RRULE"
     end
   end
 
@@ -30,7 +33,7 @@ class RruleInternal
     parse_date = DateTime.parse(date.to_s)
 
     if parse_date.nil?
-      raise RRule::InvalidRRuleError, "Invalid date"
+      raise RRule::InvalidRRule, "Invalid date"
     end
     match_data = @rrule.match(RRULE_REGEX)
 
@@ -58,7 +61,7 @@ class RruleInternal
 
   def is_in_range!(date)
     if !is_in_range?(date)
-      raise RRule::InvalidRRuleError, "Date is not in range"
+      raise RRule::InvalidRRule, "Date is not in range"
     end
   end
 end

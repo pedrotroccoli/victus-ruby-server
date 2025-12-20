@@ -191,7 +191,7 @@ RSpec.describe Private::HabitsController, type: :controller do
     it 'deletes the habit' do
       expect {
         delete :destroy, params: { id: habit.id }
-      }.to change { Habit.count }.by(-1)
+      }.to change { Habits::Habit.count }.by(-1)
 
       expect(response).to have_http_status(:ok)
       json_response = JSON.parse(response.body)

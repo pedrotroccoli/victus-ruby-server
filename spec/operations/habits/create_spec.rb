@@ -151,8 +151,8 @@ RSpec.describe Habits::Create, type: :operation do
     it 'fails when habit cannot be saved' do
       # Create a habit that will fail model validation
       # We'll stub the save to return false
-      allow_any_instance_of(Habit).to receive(:save).and_return(false)
-      allow_any_instance_of(Habit).to receive(:errors).and_return(
+      allow_any_instance_of(Habits::Habit).to receive(:save).and_return(false)
+      allow_any_instance_of(Habits::Habit).to receive(:errors).and_return(
         double(full_messages: ["Name is invalid"])
       )
       

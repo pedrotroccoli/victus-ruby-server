@@ -10,11 +10,7 @@ Rails.application.routes.draw do
           get 'me', to: 'me#me'
           put 'me', to: 'me#update_me'
 
-          get 'habits/:id', to: 'habits#show'
-          get 'habits', to: 'habits#index'
-          post 'habits', to: 'habits#create'
-          put 'habits/:id', to: 'habits#update'
-          delete 'habits/:id', to: 'habits#destroy'
+          resources :habits
 
           get 'habits-check', to: 'habits_check#all'
           get 'habits-check/:habit_id', to: 'habits_check#index'

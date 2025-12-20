@@ -12,7 +12,7 @@ class HabitsController < Private::PrivateController
     start_date = DateInternal.parse(params[:start_date], Date.today - week_days)
     end_date = DateInternal.parse(params[:end_date], Date.today + week_days)
 
-    habits_from_account = Habit.where(account_id: @current_account[:id]).includes(:habit_category)
+    habits_from_account = Habits::Habit.where(account_id: @current_account[:id]).includes(:habit_category)
 
     @habits = habits_from_account
       .where(:$or => [
@@ -70,7 +70,7 @@ class HabitsController < Private::PrivateController
   private
 
   def set_habit
-    @habit = Habit.where(account_id: @current_account[:id]).find(params[:id])
+    @habit = Habits::Habit.where(account_id: @current_account[:id]).find(params[:id])
   end
 
   def create_params

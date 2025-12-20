@@ -3,7 +3,7 @@ class HabitCheck
   include Mongoid::Timestamps
   include Mongoid::Paranoia
 
-  belongs_to :habit 
+  belongs_to :habit, class_name: 'Habits::Habit' 
   belongs_to :account
 
   field :checked, type: Boolean, default: false

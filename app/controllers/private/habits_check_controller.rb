@@ -90,7 +90,7 @@ class HabitsCheckController < Private::PrivateController
   private
 
   def get_habit
-    @habit = Habit.where(account_id: @current_account[:id]).find(params[:habit_id].to_s)
+    @habit = Habits::Habit.where(account_id: @current_account[:id]).find(params[:habit_id].to_s)
 
     render json: { error: 'Habit not found' }, status: :not_found if @habit.nil?
   end

@@ -1,4 +1,5 @@
-class Habit 
+module Habits
+  class Habit 
     include Mongoid::Document
     include Mongoid::Timestamps
     include Mongoid::Paranoia
@@ -8,8 +9,8 @@ class Habit
     has_many :habit_checks, dependent: :destroy
     belongs_to :habit_category, optional: true
 
-    belongs_to :parent_habit, class_name: 'Habit', optional: true
-    has_many :children_habits, class_name: 'Habit', foreign_key: :parent_habit_id, dependent: :destroy
+    belongs_to :parent_habit, class_name: 'Habits::Habit', optional: true
+    has_many :children_habits, class_name: 'Habits::Habit', foreign_key: :parent_habit_id, dependent: :destroy
 
     field :rule_engine_enabled, type: Boolean, default: false 
     field :rule_engine_details, type: Hash
@@ -40,4 +41,7 @@ class Habit
     validates :name, presence: true
     validates :start_date, presence: true
     validates :recurrence_type, presence: true
+    
+  end
 end
+

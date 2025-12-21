@@ -21,24 +21,47 @@ class HabitCheck
 
   private
 
+  def and_validation
+    and_ids = habit.rule_engine_details[:logic][:and]
+    # Convert string IDs to BSON::ObjectId for proper querying
+    and_ids_converted = and_ids.map { |id| id.is_a?(String) ? BSON::ObjectId.from_string(id) : id }
+
+    habit_ids = HabitCheck.where(:habit_id.in => and_ids_converted)
+
+    if habit_ids.count != and_ids.count
+      errors.add(:rule_engine, "Not all habit checks are present")
+      return
+    end
+
+    if habit_ids.any? { |habit_check| !habit_check.checked }
+      errors.add(:rule_engine, "Not all habit checks children are checked")
+    end
+  end
+
+  def or_validation
+    or_ids = habit.rule_engine_details[:logic][:or]
+    or_ids_converted = or_ids.map { |id| id.is_a?(String) ? BSON::ObjectId.from_string(id) : id }
+
+    habit_ids = HabitCheck.where(:habit_id.in => or_ids_converted)
+
+    if habit_ids.count != or_ids.count
+      errors.add(:rule_engine, "Not all habit checks are present")
+    end
+
+    if habit_ids.none? { |habit_check| habit_check.checked }
+      errors.add(:rule_engine, "No habit checks children are checked")
+    end
+  end
+
   def rule_engine_validation
     return unless habit.rule_engine_enabled
 
     if habit.rule_engine_details[:logic][:type] == 'and'
-      and_ids = habit.rule_engine_details[:logic][:and]
-      # Convert string IDs to BSON::ObjectId for proper querying
-      and_ids_converted = and_ids.map { |id| id.is_a?(String) ? BSON::ObjectId.from_string(id) : id }
+      and_validation
+    end
 
-      habit_ids = HabitCheck.where(:habit_id.in => and_ids_converted)
-
-      if habit_ids.count != and_ids.count
-        errors.add(:rule_engine, "Not all habit checks are present")
-        return
-      end
-
-      if habit_ids.any? { |habit_check| !habit_check.checked }
-        errors.add(:rule_engine, "Not all habit checks children are checked")
-      end
+    if habit.rule_engine_details[:logic][:type] == 'or'
+      or_validation
     end
   end
 
@@ -47,6 +70,7 @@ class HabitCheck
 
     unless habit_rule.present?
       errors.add(:habit_rule, "Habit has no recurrence rule")
+      return
     end
 
     rrule = RruleInternal.new(habit_rule)

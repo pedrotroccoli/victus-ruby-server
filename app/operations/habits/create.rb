@@ -26,7 +26,7 @@ module Habits
     def build_habit(ctx, params:, account:, **)
       habit_params = params.except(:habit_deltas)
 
-      ctx[:habit] = Habits::Habit.new(habit_params.merge(account_id: account.id.to_s))
+      ctx[:habit] = Habit.new(habit_params.merge(account_id: account.id.to_s))
     end
 
     def assign_account(ctx, account:, **)

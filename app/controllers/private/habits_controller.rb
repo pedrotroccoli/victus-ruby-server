@@ -21,7 +21,7 @@ class HabitsController < Private::PrivateController
         # { :start_date => { :$lte => start_date }, :end_date => { :$gte => end_date } },
         # { :end_date => nil, :start_date => { :$lte => end_date } }
         { start_date: { :$gte => start_date, :$lte => end_date } },
-        { :end_date => nil },
+        { start_date: { :$gte => start_date, :$lte => end_date }, :end_date => nil },
         { :end_date => { :$gte => start_date, :$lte => end_date } }
       ])
       .order_by(:order.asc)

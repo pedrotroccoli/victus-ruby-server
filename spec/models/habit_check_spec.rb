@@ -116,7 +116,11 @@ RSpec.describe HabitCheck, type: :model do
         )
         habit_check.valid?
 
-        expect(habit_check.finished_at).to be_within(1.second).of(current_time)
+        # finished_at should be set even if validation fails
+        # Mongoid converts Time to DateTime, so we check for DateTime
+        expect(habit_check.finished_at).not_to be_nil
+        expect(habit_check.finished_at).to be_a(DateTime)
+        expect(habit_check.finished_at.to_i).to be_within(1).of(current_time.to_i)
       end
     end
 
@@ -221,6 +225,91 @@ RSpec.describe HabitCheck, type: :model do
 
           expect(habit_check).to be_valid
           expect(habit_check.errors[:rule_engine]).not_to include("Not all habit checks children are checked")
+        end
+      end
+    end
+
+    context 'when rule_engine is enabled with OR logic' do
+      let(:child_habit1) { create(:habit, account: account, recurrence_details: { rule: 'FREQ=DAILY' }) }
+      let(:child_habit2) { create(:habit, account: account, recurrence_details: { rule: 'FREQ=DAILY' }) }
+      
+      let(:parent_habit) do
+        create(:habit,
+          account: account,
+          rule_engine_enabled: true,
+          rule_engine_details: {
+            logic: {
+              type: 'or',
+              or: [child_habit1.id.to_s, child_habit2.id.to_s]
+            }
+          },
+          recurrence_details: { rule: 'FREQ=DAILY' }
+        )
+      end
+
+      context 'when not all habit checks are present' do
+        it 'adds error when some habit checks are missing' do
+          # Create only one habit check for child_habit1
+          create(:habit_check, habit: child_habit1, account: account, checked: true)
+
+          habit_check = HabitCheck.new(
+            habit: parent_habit,
+            account: account,
+            checked: true
+          )
+
+          expect(habit_check).not_to be_valid
+          expect(habit_check.errors[:rule_engine]).to include("Not all habit checks are present")
+        end
+      end
+
+      context 'when all habit checks are present but none are checked' do
+        it 'adds error when no children are checked' do
+          # Create habit checks but none are checked
+          create(:habit_check, habit: child_habit1, account: account, checked: false)
+          create(:habit_check, habit: child_habit2, account: account, checked: false)
+
+          habit_check = HabitCheck.new(
+            habit: parent_habit,
+            account: account,
+            checked: true
+          )
+
+          # Should be invalid because no children are checked
+          expect(habit_check).not_to be_valid
+          expect(habit_check.errors[:rule_engine]).to include("No habit checks children are checked")
+        end
+      end
+
+      context 'when all habit checks are present and at least one is checked' do
+        it 'is valid when one child is checked' do
+          # Create habit checks, one is checked
+          create(:habit_check, habit: child_habit1, account: account, checked: true)
+          create(:habit_check, habit: child_habit2, account: account, checked: false)
+
+          habit_check = HabitCheck.new(
+            habit: parent_habit,
+            account: account,
+            checked: true
+          )
+
+          expect(habit_check).to be_valid
+          expect(habit_check.errors[:rule_engine]).not_to include("No habit checks children are checked")
+        end
+
+        it 'is valid when all children are checked' do
+          # Create habit checks and both are checked
+          create(:habit_check, habit: child_habit1, account: account, checked: true)
+          create(:habit_check, habit: child_habit2, account: account, checked: true)
+
+          habit_check = HabitCheck.new(
+            habit: parent_habit,
+            account: account,
+            checked: true
+          )
+
+          expect(habit_check).to be_valid
+          expect(habit_check.errors[:rule_engine]).not_to include("No habit checks children are checked")
         end
       end
     end

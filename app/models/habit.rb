@@ -19,13 +19,13 @@ class Habit
 
   field :order, type: Float, default: nil
 
-  field :start_date, type: DateTime
-  field :end_date, type: DateTime
+  field :start_date, type: Time
+  field :end_date, type: Time
 
-  field :finished_at, type: DateTime, default: nil
-  field :paused_at, type: DateTime, default: nil
+  field :finished_at, type: Time, default: nil
+  field :paused_at, type: Time, default: nil
 
-  field :last_check, type: Date
+  field :last_check, type: Time
 
   # infinite, daily, weekly, monthly, yearly
   field :recurrence_type, type: String

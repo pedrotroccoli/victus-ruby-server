@@ -14,11 +14,13 @@ class HabitsController < Private::PrivateController
 
     habits_from_account = Habit.where(account_id: @current_account[:id]).includes(:habit_category)
 
-    @habits = Habit.where(account_id: @current_account[:id])
-    .where(start_date: start_date..end_date)
-    .where(end_date: nil)
-    .or(Habit.where(end_date: start_date..end_date))
-    .order(order: :asc)
+    @habits = habits_from_account
+    .where(:start_date.lte => end_date)
+    .any_of(
+      { :end_date.gte => start_date },
+      { :end_date => nil }
+    )
+    .order_by(order: :asc)
 
     render json: @habits.as_json(include: :habit_category)
   end

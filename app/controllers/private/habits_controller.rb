@@ -9,22 +9,16 @@ class HabitsController < Private::PrivateController
   def index
     week_days = 7
 
-    start_date = DateInternal.parse(params[:start_date], Date.today - week_days)
-    end_date = DateInternal.parse(params[:end_date], Date.today + week_days)
+    start_date = DateInternal.parse(params[:start_date], Date.today - week_days).beginning_of_day
+    end_date = DateInternal.parse(params[:end_date], Date.today + week_days).end_of_day
 
     habits_from_account = Habit.where(account_id: @current_account[:id]).includes(:habit_category)
 
-    @habits = habits_from_account
-      .where(:$or => [
-        # { :start_date => { :$gte => start_date, :$lte => end_date } },
-        # { :end_date => { :$gte => start_date, :$lte => end_date } },, only: [:index, :show, :create, :update, :destroy]
-        # { :start_date => { :$lte => start_date }, :end_date => { :$gte => end_date } },
-        # { :end_date => nil, :start_date => { :$lte => end_date } }
-        { start_date: { :$gte => start_date, :$lte => end_date } },
-        { start_date: { :$gte => start_date, :$lte => end_date }, :end_date => nil },
-        { :end_date => { :$gte => start_date, :$lte => end_date } }
-      ])
-      .order_by(:order.asc)
+    @habits = Habit.where(account_id: @current_account[:id])
+    .where(start_date: start_date..end_date)
+    .where(end_date: nil)
+    .or(Habit.where(end_date: start_date..end_date))
+    .order(order: :asc)
 
     render json: @habits.as_json(include: :habit_category)
   end

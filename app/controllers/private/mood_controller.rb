@@ -25,6 +25,10 @@ module Private
     end
 
     def update
+      unless @mood.within_edit_window?
+        return render json: { errors: ["só é possível editar o mood no mesmo dia e hora em que foi criado"] }, status: :unprocessable_entity
+      end
+
       if @mood.update(mood_params)
         render json: @mood, status: :ok
       else

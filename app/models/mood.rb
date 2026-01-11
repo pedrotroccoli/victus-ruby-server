@@ -20,7 +20,11 @@ class Mood
             message: "já existe um mood registrado neste bloco de hora" }
 
   before_validation :set_hour_block_and_date, on: :create
-  validate :cannot_update_outside_time_window, on: :update
+
+  def within_edit_window?
+    now = Time.current
+    date == now.to_date && hour_block == now.hour
+  end
 
   private
 
@@ -28,12 +32,5 @@ class Mood
     now = Time.current
     self.hour_block ||= now.hour
     self.date ||= now.to_date
-  end
-
-  def cannot_update_outside_time_window
-    now = Time.current
-    return if date == now.to_date && hour_block == now.hour
-
-    errors.add(:base, "só é possível editar o mood no mesmo dia e hora em que foi criado")
   end
 end

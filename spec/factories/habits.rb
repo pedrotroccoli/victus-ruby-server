@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :habit do
+  factory :habit, class: 'Habit' do
     account
     name { "Morning Exercise" }
     description { "Daily workout routine" }

@@ -16,6 +16,8 @@ Rails.application.routes.draw do
           put 'habits/:id', to: 'habits#update'
           delete 'habits/:id', to: 'habits#destroy'
 
+          resources :habits
+
           get 'habits-check', to: 'habits_check#all'
           get 'habits-check/:habit_id', to: 'habits_check#index'
           get 'habits-check/:habit_id/:check_id', to: 'habits_check#show'

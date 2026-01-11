@@ -3,7 +3,7 @@ class Account
   include ActiveModel::SecurePassword
   include Mongoid::Timestamps
 
-  has_many :habits
+  has_many :habits, class_name: 'Habit'
   has_many :habit_checks
   has_many :moods
   has_one :subscription

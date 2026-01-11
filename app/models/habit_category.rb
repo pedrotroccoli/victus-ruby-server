@@ -4,7 +4,7 @@ class HabitCategory
 
   belongs_to :account
 
-  has_many :habits, dependent: :nullify
+  has_many :habits, class_name: 'Habit', dependent: :nullify
 
   field :name, type: String
   field :order, type: Float, default: 0

@@ -113,38 +113,33 @@ RSpec.describe Mood, type: :model do
     end
   end
 
-  describe 'update time window validation' do
-    it 'allows update within same day and hour' do
+  describe '#within_edit_window?' do
+    it 'returns true within same day and hour' do
       travel_to Time.zone.local(2026, 1, 10, 14, 30, 0) do
         mood = create(:mood, account: account)
-        mood.value = 'amazing'
-        expect(mood).to be_valid
+        expect(mood.within_edit_window?).to be true
       end
     end
 
-    it 'rejects update when hour has changed' do
+    it 'returns false when hour has changed' do
       mood = nil
       travel_to Time.zone.local(2026, 1, 10, 14, 30, 0) do
         mood = create(:mood, account: account)
       end
 
       travel_to Time.zone.local(2026, 1, 10, 15, 30, 0) do
-        mood.value = 'amazing'
-        expect(mood).not_to be_valid
-        expect(mood.errors[:base]).to include("só é possível editar o mood no mesmo dia e hora em que foi criado")
+        expect(mood.within_edit_window?).to be false
       end
     end
 
-    it 'rejects update when day has changed' do
+    it 'returns false when day has changed' do
       mood = nil
       travel_to Time.zone.local(2026, 1, 10, 14, 30, 0) do
         mood = create(:mood, account: account)
       end
 
       travel_to Time.zone.local(2026, 1, 11, 14, 30, 0) do
-        mood.value = 'amazing'
-        expect(mood).not_to be_valid
-        expect(mood.errors[:base]).to include("só é possível editar o mood no mesmo dia e hora em que foi criado")
+        expect(mood.within_edit_window?).to be false
       end
     end
   end

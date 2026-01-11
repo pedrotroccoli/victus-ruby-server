@@ -26,15 +26,30 @@ class HabitCheck
     # Convert string IDs to BSON::ObjectId for proper querying
     and_ids_converted = and_ids.map { |id| id.is_a?(String) ? BSON::ObjectId.from_string(id) : id }
 
-    habit_ids = HabitCheck.where(:habit_id.in => and_ids_converted)
+    # Filter habit checks by today's date range
+    today_start = Time.current.beginning_of_day
+    today_end = Time.current.end_of_day
 
-    if habit_ids.count != and_ids.count
+    todays_checks = HabitCheck.where(:habit_id.in => and_ids_converted)
+                              .where(:created_at.gte => today_start)
+                              .where(:created_at.lte => today_end)
+
+    # Get unique habit IDs that have checks today
+    checked_habit_ids = todays_checks.distinct(:habit_id)
+
+    if checked_habit_ids.count != and_ids.count
       errors.add(:rule_engine, "Not all habit checks are present")
       return
     end
 
-    if habit_ids.any? { |habit_check| !habit_check.checked }
-      errors.add(:rule_engine, "Not all habit checks children are checked")
+    # For AND logic: each child habit must have at least one check with checked=true today
+    # Group checks by habit_id and verify each has at least one checked=true
+    and_ids_converted.each do |child_habit_id|
+      child_checks = todays_checks.select { |hc| hc.habit_id == child_habit_id }
+      unless child_checks.any? { |hc| hc.checked }
+        errors.add(:rule_engine, "Not all habit checks children are checked")
+        return
+      end
     end
   end
 
@@ -42,13 +57,23 @@ class HabitCheck
     or_ids = habit.rule_engine_details[:logic][:or]
     or_ids_converted = or_ids.map { |id| id.is_a?(String) ? BSON::ObjectId.from_string(id) : id }
 
-    habit_ids = HabitCheck.where(:habit_id.in => or_ids_converted)
+    # Filter habit checks by today's date range
+    today_start = Time.current.beginning_of_day
+    today_end = Time.current.end_of_day
 
-    if habit_ids.count != or_ids.count
+    todays_checks = HabitCheck.where(:habit_id.in => or_ids_converted)
+                              .where(:created_at.gte => today_start)
+                              .where(:created_at.lte => today_end)
+
+    # Get unique habit IDs that have checks today
+    checked_habit_ids = todays_checks.distinct(:habit_id)
+
+    if checked_habit_ids.count != or_ids.count
       errors.add(:rule_engine, "Not all habit checks are present")
+      return
     end
 
-    if habit_ids.none? { |habit_check| habit_check.checked }
+    if todays_checks.none? { |habit_check| habit_check.checked }
       errors.add(:rule_engine, "No habit checks children are checked")
     end
   end

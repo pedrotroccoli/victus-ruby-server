@@ -5,6 +5,7 @@ module Habits
     step :assign_account
     step :build_habit_deltas
     step :save_habit
+    step :assign_children_habits
 
     def validate_params(ctx, params:, account:, **)
       ctx[:errors] = []
@@ -24,7 +25,7 @@ module Habits
     end
 
     def build_habit(ctx, params:, account:, **)
-      habit_params = params.except(:habit_deltas)
+      habit_params = params.except(:habit_deltas, :children_habit_ids)
 
       ctx[:habit] = Habit.new(habit_params.merge(account_id: account.id.to_s))
     end
@@ -52,6 +53,14 @@ module Habits
         ctx[:errors] << ctx[:habit].errors.full_messages
         false
       end
+    end
+
+    def assign_children_habits(ctx, params:, **)
+      return true unless params[:children_habit_ids].present?
+
+      Habit.where(:_id.in => params[:children_habit_ids])
+           .update_all(parent_habit_id: ctx[:habit].id)
+      true
     end
   end
 end

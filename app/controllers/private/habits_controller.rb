@@ -72,34 +72,36 @@ class HabitsController < Private::PrivateController
 
   def create_params
     params.require(:habit).permit(
-      :name, 
-      :description, 
-      :start_date, 
-      :end_date, 
+      :name,
+      :description,
+      :start_date,
+      :end_date,
       :recurrence_type,
       :delta_enabled,
       :rule_engine_enabled,
-      # :parent_habit_id,
-      # :children_enabled
+      :parent_habit_id,
       :habit_category_id,
       habit_deltas: [:type, :name, :description, :enabled],
       recurrence_details: [:rule],
-      rule_engine_details: [:logic]
+      rule_engine_details: [logic: [:type, and: [], or: []]],
+      children_habit_ids: []
     )
   end
 
   def update_params
     params.require(:habit).permit(
-      :order, 
-      :name, 
-      :habit_category_id, 
-      :delta_enabled, 
+      :order,
+      :name,
+      :habit_category_id,
+      :delta_enabled,
       :recurrence_type,
       :paused,
       :finished,
-      # :children_enabled,
+      :rule_engine_enabled,
+      :parent_habit_id,
       recurrence_details: [:rule],
-      habit_deltas_attributes: [:id, :name, :description, :enabled, :_destroy]
+      habit_deltas_attributes: [:id, :name, :description, :enabled, :_destroy],
+      rule_engine_details: [logic: [:type, and: [], or: []]]
     )
   end
 end

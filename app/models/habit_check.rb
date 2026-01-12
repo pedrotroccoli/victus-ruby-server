@@ -65,16 +65,9 @@ class HabitCheck
                               .where(:created_at.gte => today_start)
                               .where(:created_at.lte => today_end)
 
-    # Get unique habit IDs that have checks today
-    checked_habit_ids = todays_checks.distinct(:habit_id)
-
-    if checked_habit_ids.count != or_ids.count
-      errors.add(:rule_engine, "Not all habit checks are present")
-      return
-    end
-
-    if todays_checks.none? { |habit_check| habit_check.checked }
-      errors.add(:rule_engine, "No habit checks children are checked")
+    # For OR logic: at least ONE child habit must have a check with checked=true today
+    unless todays_checks.any? { |habit_check| habit_check.checked }
+      errors.add(:rule_engine, "At least one habit check child must be checked")
     end
   end
 

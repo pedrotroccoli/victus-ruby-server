@@ -232,7 +232,7 @@ RSpec.describe HabitCheck, type: :model do
     context 'when rule_engine is enabled with OR logic' do
       let(:child_habit1) { create(:habit, account: account, recurrence_details: { rule: 'FREQ=DAILY' }) }
       let(:child_habit2) { create(:habit, account: account, recurrence_details: { rule: 'FREQ=DAILY' }) }
-      
+
       let(:parent_habit) do
         create(:habit,
           account: account,
@@ -247,9 +247,9 @@ RSpec.describe HabitCheck, type: :model do
         )
       end
 
-      context 'when not all habit checks are present' do
-        it 'adds error when some habit checks are missing' do
-          # Create only one habit check for child_habit1
+      context 'when only one child habit check is present and checked' do
+        it 'is valid because OR only requires at least one child to be checked' do
+          # Create only one habit check for child_habit1 with checked=true
           create(:habit_check, habit: child_habit1, account: account, checked: true)
 
           habit_check = HabitCheck.new(
@@ -258,13 +258,24 @@ RSpec.describe HabitCheck, type: :model do
             checked: true
           )
 
-          expect(habit_check).not_to be_valid
-          expect(habit_check.errors[:rule_engine]).to include("Not all habit checks are present")
+          expect(habit_check).to be_valid
         end
       end
 
-      context 'when all habit checks are present but none are checked' do
+      context 'when no children are checked' do
         it 'adds error when no children are checked' do
+          # No habit checks at all
+          habit_check = HabitCheck.new(
+            habit: parent_habit,
+            account: account,
+            checked: true
+          )
+
+          expect(habit_check).not_to be_valid
+          expect(habit_check.errors[:rule_engine]).to include("At least one habit check child must be checked")
+        end
+
+        it 'adds error when children have checks but none are checked=true' do
           # Create habit checks but none are checked
           create(:habit_check, habit: child_habit1, account: account, checked: false)
           create(:habit_check, habit: child_habit2, account: account, checked: false)
@@ -275,13 +286,12 @@ RSpec.describe HabitCheck, type: :model do
             checked: true
           )
 
-          # Should be invalid because no children are checked
           expect(habit_check).not_to be_valid
-          expect(habit_check.errors[:rule_engine]).to include("No habit checks children are checked")
+          expect(habit_check.errors[:rule_engine]).to include("At least one habit check child must be checked")
         end
       end
 
-      context 'when all habit checks are present and at least one is checked' do
+      context 'when at least one child is checked' do
         it 'is valid when one child is checked' do
           # Create habit checks, one is checked
           create(:habit_check, habit: child_habit1, account: account, checked: true)
@@ -294,7 +304,6 @@ RSpec.describe HabitCheck, type: :model do
           )
 
           expect(habit_check).to be_valid
-          expect(habit_check.errors[:rule_engine]).not_to include("No habit checks children are checked")
         end
 
         it 'is valid when all children are checked' do
@@ -309,7 +318,6 @@ RSpec.describe HabitCheck, type: :model do
           )
 
           expect(habit_check).to be_valid
-          expect(habit_check.errors[:rule_engine]).not_to include("No habit checks children are checked")
         end
       end
     end

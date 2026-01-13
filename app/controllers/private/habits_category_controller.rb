@@ -30,7 +30,7 @@ class HabitsCategoryController < Private::PrivateController
   private
 
   def habits_category_params
-    params.require(:habits_category).permit(:name, :order)
+    params.require(:habits_category).permit(:name, :order, :icon)
   end
 end
 end

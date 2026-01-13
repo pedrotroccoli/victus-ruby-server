@@ -75,6 +75,7 @@ class HabitsController < Private::PrivateController
       :description,
       :start_date,
       :end_date,
+      :order,
       :recurrence_type,
       :delta_enabled,
       :rule_engine_enabled,

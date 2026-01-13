@@ -5,6 +5,7 @@ module Habits
 
       required(:start_date).filled(:date)
       optional(:end_date).filled(:date)
+      optional(:order).filled(:integer)
 
       required(:recurrence_type).filled(:symbol, included_in?: [:infinite, :daily, :weekly, :monthly, :yearly])
       required(:recurrence_details).filled(:hash)

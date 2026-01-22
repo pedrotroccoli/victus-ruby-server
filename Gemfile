@@ -85,6 +85,8 @@ gem 'aws-sdk-lambda'
 
 gem 'siwe'
 
+gem 'google-id-token'
+
 gem 'dry-validation'
 
 gem 'trailblazer'

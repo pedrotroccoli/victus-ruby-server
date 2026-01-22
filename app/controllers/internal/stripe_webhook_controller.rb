@@ -11,16 +11,18 @@ class StripeWebhookController < ApplicationController
     data_object = event.data.object
 
     case event_type
+    when 'customer.subscription.created'
+      handle_subscription_created(data_object)
+    when 'customer.subscription.updated'
+      handle_subscription_updated(data_object)
     when 'customer.subscription.deleted'
       handle_subscription_deleted(data_object)
     when 'invoice.paid'
       handle_invoice_paid(data_object)
     when 'invoice.payment_failed'
       handle_payment_failed(data_object)
-    when 'subscription.updated'
-      handle_subscription_updated(data_object)
     else
-      # Rails.logger.info("Unhandled event type: #{event_type}")
+      Rails.logger.info("Unhandled Stripe event type: #{event_type}")
     end
 
     render json: {}, status: 201
@@ -31,17 +33,13 @@ class StripeWebhookController < ApplicationController
       customer_id = data_object.customer
 
       subscription = Subscription.find_by("service_details.customer_id" => customer_id)
-      account = subscription&.account
 
-      if account.nil?
-        render json: { error: 'Account not found' }, status: 404
-        return
-      end
+      return if subscription.nil?
 
-      account.subscription.status = 'cancelled'
-      account.subscription.cancel_date = Time.now
-      account.subscription.cancel_reason = 'Customer cancelled subscription'
-      account.subscription.save!
+      subscription.status = 'cancelled'
+      subscription.cancel_date = Time.now
+      subscription.cancel_reason = 'Subscription deleted via Stripe'
+      subscription.save!
     end
 
     def handle_invoice_paid(data_object)
@@ -57,59 +55,79 @@ class StripeWebhookController < ApplicationController
 
     def handle_subscription_created(data_object)
       customer_id = data_object.customer
-      
-      account = Subscription.find_by("service_details.customer_id" => customer_id)&.account
+      subscription = Subscription.find_by("service_details.customer_id" => customer_id)
 
-      if account.nil?
-        render json: { error: 'Account not found' }, status: 404
-        return
-      end
+      return if subscription.nil?
 
       stripe_subscription_id = data_object.id
       trial_ends_at = data_object.trial_end
+      status = map_stripe_status(data_object.status)
+      sub_status = data_object.trial_end ? 'trial' : 'success'
 
-      subscription_object = {
-        status: data_object.status == 'active' ? 'active' : 'freezed',
-        sub_status: data_object.trial_end ? 'trial' : 'success',
-        service_details: subscription.service_details.merge({
-          subscription_id: stripe_subscription_id,
-          trial_ends_at: trial_ends_at,
-          plan_id: data_object.plan.id
-        }),
-      }
+      subscription.status = status
+      subscription.sub_status = sub_status
+      subscription.service_details = subscription.service_details.merge({
+        'subscription_id' => stripe_subscription_id,
+        'trial_ends_at' => trial_ends_at,
+        'plan_id' => data_object.items.data.first&.price&.id
+      })
+      subscription.save!
+    end
 
-      if account.subscription.nil?
-        account.subscription = Subscription.new(subscription_object)
-      else
-        account.subscription.update(subscription_object)
+    def handle_subscription_updated(data_object)
+      customer_id = data_object.customer
+      subscription = Subscription.find_by("service_details.customer_id" => customer_id)
+
+      return if subscription.nil?
+
+      status = map_stripe_status(data_object.status)
+      sub_status = subscription.sub_status
+
+      if data_object.cancel_at_period_end
+        sub_status = 'pending_cancellation'
+      elsif data_object.status == 'active' && subscription.sub_status != 'trial'
+        sub_status = 'success'
       end
-      
-      account.subscription.save!
+
+      subscription.status = status
+      subscription.sub_status = sub_status
+      subscription.service_details = subscription.service_details.merge({
+        'current_period_end' => data_object.current_period_end,
+        'cancel_at_period_end' => data_object.cancel_at_period_end
+      })
+      subscription.save!
+    end
+
+    def map_stripe_status(stripe_status)
+      case stripe_status
+      when 'active', 'trialing'
+        'active'
+      when 'canceled', 'unpaid'
+        'cancelled'
+      when 'past_due', 'incomplete', 'incomplete_expired', 'paused'
+        'freezed'
+      else
+        'freezed'
+      end
     end
 
     def handle_payment_failed(data_object)
       customer_id = data_object.customer
       subscription = Subscription.find_by("service_details.customer_id" => customer_id)
-      
+
       return if subscription.nil?
 
-      if subscription.service_details&.failed_payments.nil?
-        subscription.service_details.failed_payments = 0
-      end
+      failed_payments = subscription.service_details&.dig('failed_payments') || 0
+      failed_payments += 1
 
-      if subscription.service_details&.failed_payments >= 3
+      if failed_payments >= 3
         subscription.status = 'freezed'
         subscription.sub_status = 'payment_failed'
-        subscription.save!
-      else 
-        subscription_object = {
-          service_details: subscription.service_details.merge({
-            failed_payments: subscription.service_details&.failed_payments + 1
-          })
-        }
       end
 
-      subscription.update(subscription_object)
+      subscription.service_details = subscription.service_details.merge({
+        'failed_payments' => failed_payments
+      })
       subscription.save!
     end
 

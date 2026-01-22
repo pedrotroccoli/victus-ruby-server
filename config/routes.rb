@@ -31,6 +31,8 @@ Rails.application.routes.draw do
 
           get 'plans', to: 'plans#index'
 
+          get 'subscription', to: 'subscription#show'
+          post 'subscription/cancel', to: 'subscription#cancel'
           post 'subscription/create_session', to: 'subscription#create_session'
       end
 

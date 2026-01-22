@@ -57,14 +57,8 @@ module Public
         )
 
         checkout_url = checkout_session.url
-      else 
-        account.subscription = Subscription.new(
-          status: 'pending',
-          sub_status: 'pending_payment_information',
-          service_details: {
-            trial_ends_at: 14.days.from_now
-          }
-        )
+      else
+        account.create_trial_subscription
       end
 
       if account.save
@@ -173,6 +167,63 @@ module Public
       
     rescue Exception => e
       render json: { message: 'Invalid message 1', error: e }, status: :unauthorized
+    end
+
+    def google_auth
+      id_token = params[:id_token]
+
+      return render json: { message: 'Missing id_token' }, status: :bad_request if id_token.blank?
+
+      validator = GoogleIDToken::Validator.new
+      payload = validator.check(id_token, ENV['GOOGLE_CLIENT_ID'])
+
+      return render json: { message: 'Invalid Google token' }, status: :unauthorized if payload.nil?
+
+      google_id = payload['sub']
+      email = payload['email']
+      name = payload['name']
+
+      # Find by google_id first
+      account = Account.find_by(google_id: google_id)
+
+      # If not found by google_id, try to find by email (auto-merge)
+      if account.nil? && email.present?
+        account = Account.find_by(email: email)
+        if account
+          account.google_id = google_id
+        end
+      end
+
+      is_new_account = account.nil?
+
+      # Create new account if not found
+      if is_new_account
+        account = Account.new(
+          google_id: google_id,
+          email: email,
+          name: name
+        )
+      end
+
+      # Update connected_providers
+      if !account.connected_providers.include?('google')
+        account.connected_providers << 'google'
+      end
+
+      # Create 14-day trial subscription for new accounts
+      account.create_trial_subscription if is_new_account
+
+      if account.save
+        account.subscription&.save if is_new_account
+
+        token = JWT.encode({ account_id: account.id }, ENV['JWT_SECRET'], 'HS256')
+
+        render json: { message: 'Signed in successfully', token: token }, status: :ok
+      else
+        render json: { message: 'Something went wrong', errors: account.errors.full_messages }, status: :unprocessable_entity
+      end
+    rescue GoogleIDToken::ValidationError => e
+      render json: { message: 'Invalid Google token', error: e.message }, status: :unauthorized
     end
   end
 end

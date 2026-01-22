@@ -1,7 +1,3 @@
-require 'stripe'
-
-Stripe.api_key = ENV['STRIPE_SECRET_KEY']
-
 module Private
 class CheckoutController < Private::PrivateController
   skip_before_action :check_subscription

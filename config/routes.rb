@@ -40,6 +40,8 @@ Rails.application.routes.draw do
 
         get 'auth/start_siwe_auth', to: 'auth#start_siwe_auth'
         post 'auth/siwe_verify', to: 'auth#siwe_verify'
+
+        post 'auth/google_auth', to: 'auth#google_auth'
       end
 
       scope module: 'internal' do

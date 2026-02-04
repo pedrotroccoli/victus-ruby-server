@@ -1,6 +1,8 @@
 .git
 .gitignore
 .github
+.env
+.env.*
 .bundle
 .log
 .tmp

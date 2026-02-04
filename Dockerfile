@@ -6,6 +6,9 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   git \
   curl \
   ca-certificates \
+  autoconf \
+  automake \
+  libtool \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

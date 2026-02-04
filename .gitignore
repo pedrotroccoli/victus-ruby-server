@@ -40,3 +40,9 @@ yarn-debug.log*
 .yarn-integrity
 
 .env
+
+# Use this folder to put AI plans
+plans
+
+.DS_Store
+**/.DS_Store

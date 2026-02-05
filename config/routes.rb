@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
-    get 'ping', to: 'ping#index'
+  if defined?(Rswag::Ui::Engine)
+    mount Rswag::Ui::Engine => '/api-docs'
+    mount Rswag::Api::Engine => '/api-docs'
+  end
+
+  get 'ping', to: 'ping#index'
     post 'ping', to: 'ping#index'
 
     scope :api do

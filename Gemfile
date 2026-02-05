@@ -91,4 +91,9 @@ gem 'dry-validation'
 
 gem 'trailblazer'
 
-gem 'rspec-rails'
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'rswag-api'
+  gem 'rswag-ui'
+  gem 'rswag-specs'
+end

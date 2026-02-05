@@ -217,6 +217,9 @@ GEM
       activesupport (>= 5.0.0)
     jmespath (1.6.2)
     json (2.11.3)
+    json-schema (6.1.0)
+      addressable (~> 2.8)
+      bigdecimal (>= 3.1, < 5)
     jsonapi-renderer (0.2.2)
     jwt (2.10.1)
       base64
@@ -389,6 +392,17 @@ GEM
       rspec-mocks (~> 3.13)
       rspec-support (~> 3.13)
     rspec-support (3.13.5)
+    rswag-api (2.17.0)
+      activesupport (>= 5.2, < 8.2)
+      railties (>= 5.2, < 8.2)
+    rswag-specs (2.17.0)
+      activesupport (>= 5.2, < 8.2)
+      json-schema (>= 2.2, < 7.0)
+      railties (>= 5.2, < 8.2)
+      rspec-core (>= 2.14)
+    rswag-ui (2.17.0)
+      actionpack (>= 5.2, < 8.2)
+      railties (>= 5.2, < 8.2)
     rubyzip (2.4.1)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
@@ -537,6 +551,9 @@ DEPENDENCIES
   rails (~> 7.2.2.1)
   rrule
   rspec-rails
+  rswag-api
+  rswag-specs
+  rswag-ui
   sass-rails (>= 6)
   selenium-webdriver (>= 4.0.0.rc1)
   sidekiq
